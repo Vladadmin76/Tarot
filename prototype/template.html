@@ -1,0 +1,604 @@
+<title>Таро</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Forum&family=Onest:wght@400;500;600&display=swap">
+<style>
+/* Идея: ночное небо над столом гадалки. Тёмный индиго, одна тёплая акцентная краска на выбор (золото / аметист / лазурь),
+   карты крупно, текст спокойный. Дисплейный шрифт Forum только для заголовков и названий карт. */
+:root {
+  --bg: #0a0918;
+  --bg-2: #100e26;
+  --surface: #16143a;
+  --surface-2: #1d1a4a;
+  --line: #2c2862;
+  --fg: #ece8f7;
+  --muted: #a39fc6;
+  --accent: #dcb468;
+  --accent-ink: #1a1306;
+  --accent-soft: rgba(220, 180, 104, .14);
+  --good: #7fd6a4;
+  --warn: #f0a07a;
+  --display: "Forum", "Times New Roman", serif;
+  --body: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius: 14px;
+  color-scheme: dark;
+}
+:root[data-accent="amethyst"] { --accent: #b793ff; --accent-ink: #130a26; --accent-soft: rgba(183, 147, 255, .15); }
+:root[data-accent="azure"] { --accent: #6fd6d2; --accent-ink: #04201f; --accent-soft: rgba(111, 214, 210, .14); }
+
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 16px/1.55 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+  overflow-x: hidden;
+}
+.sky {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(1px 1px at 12% 18%, #fff9 50%, transparent 51%),
+    radial-gradient(1px 1px at 78% 12%, #fff8 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 44% 34%, #fff7 50%, transparent 51%),
+    radial-gradient(1px 1px at 90% 52%, #fff6 50%, transparent 51%),
+    radial-gradient(1px 1px at 22% 66%, #fff7 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 62% 82%, #fff6 50%, transparent 51%),
+    radial-gradient(1px 1px at 8% 90%, #fff6 50%, transparent 51%),
+    radial-gradient(900px 500px at 50% -10%, var(--accent-soft), transparent 70%),
+    linear-gradient(180deg, var(--bg-2), var(--bg) 60%);
+}
+.wrap { max-width: 1080px; margin: 0 auto; }
+h1, h2, h3, .display { font-family: var(--display); font-weight: 400; letter-spacing: .01em; text-wrap: balance; margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+
+/* ---- шапка ---- */
+header.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 12px 0; margin-bottom: 8px;
+  background: linear-gradient(180deg, var(--bg) 70%, transparent);
+}
+.brand { font-family: var(--display); font-size: 28px; color: var(--accent); margin-right: auto; display: flex; align-items: baseline; gap: 10px; }
+.brand small { font: 500 11px/1 var(--body); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+nav.tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px; }
+nav.tabs button { border: 0; background: none; padding: 8px 16px; border-radius: 999px; color: var(--muted); font-weight: 500; }
+nav.tabs button[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
+.accents { display: flex; gap: 8px; align-items: center; }
+.accents button { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line); padding: 0; }
+.accents button[aria-pressed="true"] { border-color: var(--fg); }
+@media (max-width: 640px) {
+  .brand small { display: none; }
+  nav.tabs { order: 3; width: 100%; overflow-x: auto; scrollbar-width: none; }
+  nav.tabs button { flex: 1 0 auto; padding: 8px 9px; white-space: nowrap; font-size: 14px; }
+}
+.dot-gold { background: #dcb468; } .dot-amethyst { background: #b793ff; } .dot-azure { background: #6fd6d2; }
+
+/* ---- общие элементы ---- */
+.lead { color: var(--muted); max-width: 62ch; margin: 6px 0 0; }
+.section-title { font-size: clamp(28px, 5vw, 44px); line-height: 1.1; margin: 22px 0 6px; }
+.btn {
+  border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink);
+  padding: 12px 22px; border-radius: 999px; font-weight: 600; transition: transform .15s, filter .15s;
+}
+.btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.btn.ghost { background: none; color: var(--accent); }
+.btn.small { padding: 7px 14px; font-size: 14px; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
+.chip { display: inline-block; padding: 3px 11px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 13px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
+label.field { display: grid; gap: 6px; font-size: 14px; color: var(--muted); }
+input[type=text], input[type=password], input[type=search], textarea, select {
+  background: var(--bg-2); color: var(--fg); border: 1px solid var(--line); border-radius: 10px; padding: 11px 13px; font: inherit; width: 100%;
+}
+.switch { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+.switch input { appearance: none; width: 42px; height: 24px; border-radius: 999px; background: var(--line); position: relative; transition: background .2s; flex: none; }
+.switch input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--fg); transition: transform .2s; }
+.switch input:checked { background: var(--accent); }
+.switch input:checked::after { transform: translateX(18px); background: var(--accent-ink); }
+
+/* ---- расклады: выбор ---- */
+.spread-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; margin: 18px 0; }
+.spread-pick {
+  text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 14px; display: grid; gap: 8px; transition: border-color .2s, transform .2s;
+}
+.spread-pick:hover { transform: translateY(-2px); }
+.spread-pick[aria-pressed="true"] { border-color: var(--accent); background: var(--surface-2); }
+.spread-pick .mini { display: flex; gap: 4px; height: 34px; align-items: center; }
+.spread-pick .mini i { display: block; width: 22px; height: 33px; border-radius: 3px; border: 1px solid var(--accent); opacity: .85; }
+.spread-pick .mini i.x { transform: rotate(90deg) scale(.9); margin-left: -26px; }
+.spread-pick b { font-family: var(--display); font-weight: 400; font-size: 20px; }
+.spread-pick span { color: var(--muted); font-size: 14px; }
+.setup { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: end; }
+@media (max-width: 640px) { .setup { grid-template-columns: 1fr; } }
+.setup-row { display: flex; gap: 22px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+
+/* ---- стол ---- */
+.table-wrap { margin: 26px 0 10px; display: grid; justify-items: center; }
+.question-echo { text-align: center; font-family: var(--display); font-size: 22px; color: var(--accent); margin: 0 0 14px; max-width: 40ch; }
+.board { position: relative; }
+.slot { position: absolute; }
+.slot.cross { z-index: 3; transform: rotate(90deg); }
+.card { width: var(--cw); height: calc(var(--cw) * 1.5); perspective: 900px; cursor: pointer; animation: deal .6s cubic-bezier(.2, .8, .2, 1) both; animation-delay: var(--d, 0ms); background: none; border: 0; padding: 0; display: block; }
+@keyframes deal { from { opacity: 0; transform: translateY(-40px) scale(.85) rotate(-4deg); } to { opacity: 1; transform: none; } }
+.card .inner { display: block; position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .75s cubic-bezier(.3, .7, .2, 1); }
+.card.flipped .inner { transform: rotateY(180deg); }
+.face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: calc(var(--cw) * .05); overflow: hidden; box-shadow: 0 6px 22px #0009; background: var(--surface); }
+.face img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.face.front { transform: rotateY(180deg); }
+.face.front img.rev { transform: rotate(180deg); }
+.card:not(.flipped):hover .face.back { box-shadow: 0 0 0 2px var(--accent), 0 8px 26px #000a; }
+.badge { position: absolute; left: 6px; top: 6px; z-index: 4; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--bg); color: var(--accent); border: 1px solid var(--accent); font: 600 12px/20px var(--body); text-align: center; pointer-events: none; }
+.slot.cross .badge { transform: rotate(-90deg); }
+.cap { position: absolute; left: 50%; top: 100%; transform: translateX(-50%); margin-top: 8px; width: calc(var(--cw) * 1.3); text-align: center; font-size: 13px; color: var(--muted); }
+.actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 18px 0; }
+.hint { text-align: center; color: var(--muted); font-size: 14px; margin: 0; }
+.verdict { text-align: center; margin: 12px 0 0; }
+.verdict b { display: block; font-family: var(--display); font-weight: 400; font-size: clamp(54px, 12vw, 96px); line-height: 1; color: var(--accent); }
+.verdict.no b { color: var(--warn); }
+
+/* ---- результат ---- */
+.result { display: grid; gap: 22px; margin-top: 18px; grid-template-columns: 1.4fr 1fr; align-items: start; }
+@media (max-width: 860px) { .result { grid-template-columns: 1fr; } }
+.rows { display: grid; gap: 10px; }
+.row { display: grid; grid-template-columns: 54px 1fr auto; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; }
+.row img { width: 54px; height: 81px; border-radius: 6px; object-fit: cover; display: block; }
+.row img.rev { transform: rotate(180deg); }
+.row .pos { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.row .nm { font-family: var(--display); font-size: 21px; line-height: 1.2; }
+.row .tx { color: var(--muted); font-size: 14px; margin-top: 3px; }
+.row.locked { opacity: .55; }
+.paywall { position: relative; overflow: hidden; }
+.paywall .blur { filter: blur(5px); user-select: none; color: var(--muted); display: grid; gap: 8px; margin: 12px 0; }
+.paywall .blur i { display: block; height: 10px; border-radius: 5px; background: var(--line); }
+.tag { display: inline-block; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 2px 10px; }
+
+/* ---- энциклопедия ---- */
+.filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; align-items: center; }
+.filters button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 7px 15px; color: var(--muted); }
+.filters button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.filters input { max-width: 240px; margin-left: auto; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 14px; }
+.tile { background: none; border: 0; padding: 0; text-align: center; display: grid; gap: 8px; }
+.tile img { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: 8px; box-shadow: 0 6px 20px #0008; transition: transform .2s, box-shadow .2s; }
+.tile:hover img { transform: translateY(-3px); box-shadow: 0 0 0 2px var(--accent), 0 10px 24px #000a; }
+.tile span { font-size: 14px; color: var(--muted); }
+.empty { color: var(--muted); text-align: center; padding: 32px 0; }
+
+/* ---- история / кабинет ---- */
+.hist { display: grid; gap: 10px; margin-top: 16px; }
+.hist-item { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
+.hist-item .thumbs { display: flex; }
+.hist-item .thumbs img { width: 34px; height: 51px; border-radius: 4px; object-fit: cover; margin-left: -10px; border: 1px solid var(--bg); }
+.hist-item .thumbs img:first-child { margin-left: 0; }
+.hist-item .thumbs img.rev { transform: rotate(180deg); }
+.hist-item .meta b { font-family: var(--display); font-weight: 400; font-size: 20px; }
+.hist-item .meta div { color: var(--muted); font-size: 14px; }
+.hist-actions { display: flex; gap: 6px; }
+.icon-btn { border: 1px solid var(--line); background: none; width: 36px; height: 36px; border-radius: 50%; color: var(--muted); }
+.icon-btn[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+.cabinet { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 18px; }
+@media (max-width: 760px) { .cabinet { grid-template-columns: 1fr; } }
+.cabinet .panel { display: grid; gap: 14px; align-content: start; }
+.cabinet h3 { font-size: 22px; }
+.plans { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.plan { border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: grid; gap: 4px; background: var(--bg-2); }
+.plan b { font-family: var(--display); font-weight: 400; font-size: 20px; }
+.plan.best { border-color: var(--accent); }
+.mock { font-size: 12px; color: var(--warn); letter-spacing: .06em; text-transform: uppercase; }
+
+/* ---- карточка карты ---- */
+.overlay { position: fixed; inset: 0; z-index: 50; background: #04030cd9; display: grid; place-items: center; padding: 16px; overflow-y: auto; }
+.sheet { background: var(--bg-2); border: 1px solid var(--line); border-radius: 18px; width: min(880px, 100%); margin: auto; padding: 22px; position: relative; display: grid; grid-template-columns: 250px 1fr; gap: 24px; }
+@media (max-width: 720px) { .sheet { grid-template-columns: 1fr; } .sheet .pic { max-width: 220px; margin: 0 auto; } }
+.sheet .pic img { width: 100%; border-radius: 10px; display: block; box-shadow: 0 10px 34px #000b; }
+.sheet .pic img.rev { transform: rotate(180deg); }
+.sheet h2 { font-size: clamp(30px, 5vw, 42px); line-height: 1.1; }
+.sheet .close { position: absolute; right: 12px; top: 12px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; margin: 10px 0; }
+.seg button { border: 0; background: none; padding: 6px 16px; border-radius: 999px; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.kw { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 14px; }
+.block { margin-top: 14px; }
+.block h4 { margin: 0 0 4px; font: 600 12px/1.4 var(--body); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.block p { margin: 0; max-width: 62ch; }
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 18px; border-radius: 999px; z-index: 80; font-size: 14px; max-width: 90vw; }
+.foot { margin-top: 36px; color: var(--muted); font-size: 13px; text-align: center; }
+@media (prefers-reduced-motion: reduce) { .card, .card .inner { animation: none; transition: none; } .btn { transition: none; } }
+</style>
+
+<div class="sky" aria-hidden="true"></div>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">Таро <small>Космический мистицизм</small></div>
+    <nav class="tabs" role="tablist" aria-label="Разделы">
+      <button role="tab" id="tab-spreads" aria-selected="true" data-tab="spreads">Расклады</button>
+      <button role="tab" id="tab-lib" aria-selected="false" data-tab="lib">Значения</button>
+      <button role="tab" id="tab-hist" aria-selected="false" data-tab="hist">История</button>
+      <button role="tab" id="tab-me" aria-selected="false" data-tab="me">Кабинет</button>
+    </nav>
+    <div class="accents" role="group" aria-label="Цвет оформления">
+      <button class="dot-gold" data-accent="gold" aria-label="Золото" aria-pressed="true"></button>
+      <button class="dot-amethyst" data-accent="amethyst" aria-label="Аметист" aria-pressed="false"></button>
+      <button class="dot-azure" data-accent="azure" aria-label="Лазурь" aria-pressed="false"></button>
+    </div>
+  </header>
+
+  <!-- РАСКЛАДЫ -->
+  <main id="view-spreads">
+    <h1 class="section-title">Выберите расклад</h1>
+    <p class="lead">Сосредоточьтесь на вопросе, перетасуйте колоду и вытяните карты. Все 78 карт авторской колоды, прямое и перевёрнутое положение.</p>
+    <div class="spread-list" id="spreadList"></div>
+    <div class="panel setup">
+      <label class="field" for="question">Ваш вопрос (необязательно)
+        <input type="text" id="question" maxlength="140" placeholder="Например: что мне важно понять про новую работу?">
+      </label>
+      <button class="btn" id="draw">Перетасовать и вытянуть</button>
+      <div class="setup-row" style="grid-column: 1 / -1; margin-top: 0">
+        <label class="switch" for="useRev"><input type="checkbox" id="useRev" checked> Перевёрнутые карты</label>
+        <span class="hint" id="spreadNote"></span>
+      </div>
+    </div>
+    <section id="stage" hidden aria-live="polite">
+      <div class="table-wrap">
+        <p class="question-echo" id="qEcho" hidden></p>
+        <div id="boardBox" style="width:100%; display:grid; justify-items:center"><div class="board" id="board"></div></div>
+        <div class="verdict" id="verdict" hidden></div>
+      </div>
+      <p class="hint" id="flipHint">Нажмите на карту, чтобы перевернуть её</p>
+      <div class="actions">
+        <button class="btn ghost" id="openAll">Открыть все карты</button>
+        <button class="btn ghost" id="again">Новый расклад</button>
+        <button class="btn" id="save" disabled>Сохранить в историю</button>
+      </div>
+      <div class="result" id="result" hidden>
+        <div>
+          <h2 style="font-size:26px; margin-bottom:10px">Карты расклада</h2>
+          <div class="rows" id="rows"></div>
+        </div>
+        <aside class="panel paywall">
+          <span class="tag">По подписке</span>
+          <h3 style="font-size:24px; margin-top:10px">Толкование расклада от ИИ</h3>
+          <p class="lead" style="margin-top:6px; font-size:15px">Связный разбор всех позиций вместе, с учётом вашего вопроса и совет в конце.</p>
+          <div class="blur" aria-hidden="true"><i style="width:96%"></i><i style="width:88%"></i><i style="width:92%"></i><i style="width:60%"></i><i style="width:90%"></i><i style="width:74%"></i></div>
+          <button class="btn" id="ai">Получить толкование</button>
+          <p class="hint" style="text-align:left; margin-top:10px">Без подписки вы видите краткое толкование каждой карты слева.</p>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <!-- ЗНАЧЕНИЯ КАРТ -->
+  <main id="view-lib" hidden>
+    <h1 class="section-title">Значения карт</h1>
+    <p class="lead">Все 78 карт: суть, психология и практические советы для прямого и перевёрнутого положения.</p>
+    <div class="filters" id="filters"></div>
+    <div class="grid" id="libGrid"></div>
+    <p class="empty" id="libEmpty" hidden>Ничего не найдено. Попробуйте другое слово.</p>
+  </main>
+
+  <!-- ИСТОРИЯ -->
+  <main id="view-hist" hidden>
+    <h1 class="section-title">История раскладов</h1>
+    <p class="lead">Сохранённые расклады лежат здесь. В прототипе они хранятся только в этом браузере.</p>
+    <div class="hist" id="histList"></div>
+    <p class="empty" id="histEmpty" hidden>Пока пусто. Вытяните расклад и нажмите «Сохранить в историю».</p>
+  </main>
+
+  <!-- КАБИНЕТ (макет) -->
+  <main id="view-me" hidden>
+    <h1 class="section-title">Личный кабинет</h1>
+    <p class="lead">Макет внешнего вида. Вход, подписка и Telegram пока не работают.</p>
+    <div class="cabinet">
+      <form class="panel" id="loginForm" onsubmit="return false">
+        <span class="mock">Макет</span>
+        <h3>Вход</h3>
+        <label class="field" for="lg">Логин<input type="text" id="lg" autocomplete="username" placeholder="Не меньше 3 символов"></label>
+        <label class="field" for="pw">Пароль<input type="password" id="pw" autocomplete="current-password" placeholder="Не меньше 8 символов"></label>
+        <div style="display:flex; gap:10px; flex-wrap:wrap">
+          <button class="btn" type="button" data-mock="Вход подключим на этапе с базой">Войти</button>
+          <button class="btn ghost" type="button" data-mock="Регистрацию подключим на этапе с базой">Создать аккаунт</button>
+        </div>
+      </form>
+      <div class="panel">
+        <span class="mock">Макет</span>
+        <h3>Настройки</h3>
+        <label class="field" for="lang">Язык
+          <select id="lang"><option>Русский</option><option disabled>English (скоро)</option><option disabled>Español (скоро)</option></select>
+        </label>
+        <label class="field" for="tz">Часовой пояс<select id="tz"><option>Москва, UTC+3</option><option>Лондон, UTC+0</option><option>Нью-Йорк, UTC−5</option></select></label>
+        <label class="field" for="dt">Время карты дня<select id="dt"><option>08:00</option><option>09:00</option><option>12:00</option></select></label>
+        <label class="switch" for="useRev2"><input type="checkbox" id="useRev2" checked> Перевёрнутые карты</label>
+        <button class="btn ghost" type="button" data-mock="Привязка Telegram придёт вместе с ботом">Привязать Telegram</button>
+      </div>
+      <div class="panel" style="grid-column: 1 / -1">
+        <span class="mock">Макет</span>
+        <h3>Подписка</h3>
+        <div class="plans">
+          <div class="plan"><b>Бесплатно</b><span>Карта дня, базовые расклады с краткими толкованиями, значения всех карт. 5 толкований от ИИ в сутки.</span></div>
+          <div class="plan best"><b>Подписка</b><span>Толкования от ИИ без очереди, кельтский крест и другие большие расклады, до 50 толкований в сутки.</span><button class="btn small" data-mock="Оплату подключим после запуска сайта" style="justify-self:start; margin-top:8px">Оформить</button></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <p class="foot">Прототип внешнего вида. Данные: 78 карт, толкования на русском. ИИ-толкование, вход и оплата пока не подключены.</p>
+</div>
+
+<div class="overlay" id="overlay" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"></div></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const DATA = __DATA__;
+const CARDS = DATA.cards, BACK = DATA.back;
+const BY_ID = Object.fromEntries(CARDS.map(c => [c.id, c]));
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>"]/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* без хранилища работаем в памяти */ } }
+};
+
+/* ---------- расклады (по ТЗ 3.2 и Приложению A) ---------- */
+const P = (x, y, name, cross) => ({ x, y, name, cross: !!cross });
+const SPREADS = [
+  { id: "day", name: "Карта дня", sub: "1 карта", desc: "Тема дня. Одна и та же карта до полуночи.", W: 1, H: 1.5, max: 190, caption: true, mini: [0], daily: true,
+    pos: [P(0, 0, "Тема дня")] },
+  { id: "yesno", name: "Да или нет", sub: "1 карта", desc: "Прямая карта означает «да», перевёрнутая «нет».", W: 1, H: 1.5, max: 190, caption: true, mini: [0], yesno: true,
+    pos: [P(0, 0, "Ответ")] },
+  { id: "three", name: "Три карты", sub: "3 карты", desc: "Прошлое, настоящее, будущее.", W: 3.3, H: 1.5, max: 150, caption: true, mini: [0, 1, 2],
+    pos: [P(0, 0, "Прошлое"), P(1.15, 0, "Настоящее"), P(2.3, 0, "Будущее")] },
+  { id: "cross", name: "Малый крест", sub: "5 карт", desc: "Что происходит, что мешает, откуда это растёт и куда ведёт.", W: 3.7, H: 3.1, max: 130, caption: false, mini: [0, 1, 2, "x"],
+    pos: [P(1.35, 0, "Ситуация"), P(1.35, 0, "Препятствие", true), P(1.35, 1.6, "Корень"), P(0, 0, "Уходящее"), P(2.7, 0, "Направление")] },
+  { id: "celtic", name: "Кельтский крест", sub: "10 карт", desc: "Глубокий разбор сложной ситуации.", W: 5.1, H: 6.3, max: 118, caption: false, mini: [0, 1, 2, "x", 3],
+    pos: [P(1.35, 1.6, "Сердце вопроса: настоящее"), P(1.35, 1.6, "Что пересекает: вызов", true), P(1.35, 3.2, "Основание, корень"),
+      P(0, 1.6, "Недавнее прошлое"), P(1.35, 0, "Венец: цель, лучший исход"), P(2.7, 1.6, "Ближайшее будущее"),
+      P(4.1, 4.8, "Вы сами"), P(4.1, 3.2, "Окружение, другие люди"), P(4.1, 1.6, "Надежды и страхи"), P(4.1, 0, "Вероятный итог")] }
+];
+const SUITS = { major: "Старшие арканы", wands: "Жезлы", cups: "Кубки", swords: "Мечи", pentacles: "Пентакли" };
+
+/* ---------- состояние ---------- */
+const S = { tab: "spreads", spread: "three", reading: null, filter: "all", q: "" };
+let toastT;
+function toast(msg) {
+  const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2600);
+}
+document.addEventListener("click", e => { const m = e.target.closest("[data-mock]"); if (m) toast(m.dataset.mock); });
+
+/* ---------- вкладки и оформление ---------- */
+function showTab(t) {
+  S.tab = t;
+  $$("nav.tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === t));
+  for (const v of ["spreads", "lib", "hist", "me"]) $("#view-" + v).hidden = v !== t;
+  window.scrollTo(0, 0);
+  if (t === "hist") renderHistory();
+  if (t === "spreads" && S.reading) fitBoard();
+}
+$$("nav.tabs button").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
+function setAccent(a) {
+  if (a === "gold") document.documentElement.removeAttribute("data-accent"); else document.documentElement.setAttribute("data-accent", a);
+  $$(".accents button").forEach(b => b.setAttribute("aria-pressed", b.dataset.accent === a));
+  store.set("tarot_accent", a);
+}
+$$(".accents button").forEach(b => b.addEventListener("click", () => setAccent(b.dataset.accent)));
+setAccent(store.get("tarot_accent", "gold"));
+
+/* ---------- выбор расклада ---------- */
+function renderSpreadList() {
+  $("#spreadList").innerHTML = SPREADS.map(s => `
+    <button class="spread-pick" data-id="${s.id}" aria-pressed="${s.id === S.spread}">
+      <div class="mini" aria-hidden="true">${s.mini.map(m => m === "x" ? '<i class="x"></i>' : "<i></i>").join("")}</div>
+      <b>${s.name}</b><span>${s.sub}. ${s.desc}</span>
+    </button>`).join("");
+  $$(".spread-pick").forEach(b => b.addEventListener("click", () => { S.spread = b.dataset.id; renderSpreadList(); updateNote(); }));
+}
+function updateNote() {
+  const s = SPREADS.find(x => x.id === S.spread);
+  $("#spreadNote").textContent = s.yesno ? "Здесь карта всегда выпадает в случайном положении" : s.daily ? "Карта дня одна на весь день" : "";
+}
+
+/* ---------- случайность ---------- */
+function rnd(n) { // честный случайный индекс без смещения
+  const lim = Math.floor(0x100000000 / n) * n, a = new Uint32Array(1);
+  do { crypto.getRandomValues(a); } while (a[0] >= lim);
+  return a[0] % n;
+}
+function shuffle(arr) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function seeded(str) { // карта дня: одна и та же в течение суток
+  let h = 1779033703 ^ str.length;
+  for (let i = 0; i < str.length; i++) { h = Math.imul(h ^ str.charCodeAt(i), 3432918353); h = h << 13 | h >>> 19; }
+  return () => { h = Math.imul(h ^ h >>> 16, 2246822507); h = Math.imul(h ^ h >>> 13, 3266489909); return ((h ^= h >>> 16) >>> 0) / 4294967296; };
+}
+function pickCards(spread, useRev) {
+  if (spread.daily) {
+    const d = new Date(), key = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`, r = seeded("day|" + key);
+    return [{ id: CARDS[Math.floor(r() * 78)].id, rev: useRev && r() < 0.5 }];
+  }
+  const deck = shuffle(CARDS.map(c => c.id));
+  return spread.pos.map((_, i) => ({ id: deck[i], rev: spread.yesno ? rnd(2) === 1 : useRev && rnd(2) === 1 }));
+}
+
+/* ---------- стол ---------- */
+function fitBoard() {
+  const r = S.reading; if (!r) return;
+  const sp = SPREADS.find(s => s.id === r.spread);
+  const avail = Math.max(240, $("#boardBox").clientWidth - 4);
+  const cw = Math.max(54, Math.min(sp.max, Math.floor(avail / sp.W)));
+  const b = $("#board");
+  b.style.setProperty("--cw", cw + "px");
+  b.style.width = cw * sp.W + "px";
+  b.style.height = cw * sp.H + (sp.caption ? 40 : 0) + "px";
+  $$(".slot", b).forEach(el => { const p = sp.pos[+el.dataset.i]; el.style.left = cw * p.x + "px"; el.style.top = cw * p.y + "px"; });
+}
+function renderBoard() {
+  const r = S.reading, sp = SPREADS.find(s => s.id === r.spread), b = $("#board");
+  b.innerHTML = sp.pos.map((p, i) => {
+    const c = BY_ID[r.cards[i].id], rev = r.cards[i].rev, open = r.open[i];
+    return `<div class="slot${p.cross ? " cross" : ""}" data-i="${i}">
+      <button class="card${open ? " flipped" : ""}" style="--d:${i * 110}ms" data-i="${i}" aria-label="${open ? esc(c.n) : "Закрытая карта, позиция " + (i + 1)}">
+        <span class="inner">
+          <span class="face back"><img src="${BACK}" alt=""></span>
+          <span class="face front"><img class="${rev ? "rev" : ""}" src="${c.img}" alt="${esc(c.n)}${rev ? ", перевёрнутая" : ""}"></span>
+        </span>
+      </button>
+      ${sp.pos.length > 1 ? `<span class="badge">${i + 1}</span>` : ""}
+      ${sp.caption ? `<span class="cap">${esc(p.name)}</span>` : ""}
+    </div>`;
+  }).join("");
+  $$(".card", b).forEach(el => el.addEventListener("click", () => onCard(+el.dataset.i)));
+  fitBoard();
+}
+function onCard(i) {
+  const r = S.reading;
+  if (!r.open[i]) { r.open[i] = true; $$(".card")[i].classList.add("flipped"); afterFlip(); }
+  else openSheet(r.cards[i].id, r.cards[i].rev, SPREADS.find(s => s.id === r.spread).pos[i].name);
+}
+function afterFlip() {
+  const r = S.reading, all = r.open.every(Boolean);
+  $("#flipHint").hidden = all;
+  $("#openAll").hidden = all;
+  $("#save").disabled = !all;
+  $("#result").hidden = !all;
+  if (all) { renderResult(); setTimeout(() => $("#result").scrollIntoView({ behavior: "smooth", block: "nearest" }), 500); }
+  renderVerdict();
+}
+function firstSentence(t) { const m = t.match(/^.*?[.!?](\s|$)/); return m ? m[0].trim() : t; }
+function renderVerdict() {
+  const r = S.reading, sp = SPREADS.find(s => s.id === r.spread), v = $("#verdict");
+  if (!sp.yesno || !r.open[0]) { v.hidden = true; return; }
+  const yes = !r.cards[0].rev;
+  v.className = "verdict" + (yes ? "" : " no"); v.hidden = false;
+  v.innerHTML = `<b>${yes ? "Да" : "Нет"}</b><span class="lead">${yes ? "Карта выпала прямо." : "Карта выпала перевёрнутой."}</span>`;
+}
+function renderResult() {
+  const r = S.reading, sp = SPREADS.find(s => s.id === r.spread);
+  $("#rows").innerHTML = sp.pos.map((p, i) => {
+    const c = BY_ID[r.cards[i].id], rev = r.cards[i].rev, d = rev ? c.r : c.u;
+    return `<div class="row">
+      <img class="${rev ? "rev" : ""}" src="${c.img}" alt="">
+      <div><div class="pos">${sp.pos.length > 1 ? (i + 1) + ". " : ""}${esc(p.name)}</div>
+        <div class="nm">${esc(c.n)}${rev ? ' <span class="chip">перевёрнутая</span>' : ""}</div>
+        <div class="tx">${esc(firstSentence(d.e))}</div></div>
+      <button class="btn ghost small" data-open="${i}">Подробнее</button>
+    </div>`;
+  }).join("");
+  $$("[data-open]").forEach(b => b.addEventListener("click", () => { const i = +b.dataset.open; openSheet(r.cards[i].id, r.cards[i].rev, sp.pos[i].name); }));
+}
+function startReading(spreadId, cards, question, opened) {
+  const sp = SPREADS.find(s => s.id === spreadId);
+  S.reading = { spread: spreadId, cards, q: question || "", open: cards.map(() => !!opened), saved: false };
+  $("#stage").hidden = false;
+  const q = $("#qEcho"); q.hidden = !S.reading.q; q.textContent = S.reading.q ? "«" + S.reading.q + "»" : "";
+  $("#flipHint").hidden = false; $("#openAll").hidden = false; $("#save").disabled = true; $("#result").hidden = true; $("#verdict").hidden = true;
+  $("#save").textContent = "Сохранить в историю";
+  renderBoard();
+  if (opened) afterFlip();
+  $("#stage").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+$("#draw").addEventListener("click", () => {
+  const sp = SPREADS.find(s => s.id === S.spread);
+  startReading(sp.id, pickCards(sp, $("#useRev").checked), $("#question").value.trim(), false);
+});
+$("#again").addEventListener("click", () => { $("#stage").hidden = true; S.reading = null; $("#view-spreads").scrollIntoView({ behavior: "smooth" }); });
+$("#openAll").addEventListener("click", () => {
+  const r = S.reading; r.open = r.open.map(() => true);
+  $$(".card").forEach((el, i) => setTimeout(() => el.classList.add("flipped"), i * 160));
+  setTimeout(afterFlip, r.open.length * 160 + 600);
+});
+$("#ai").addEventListener("click", () => toast("ИИ-толкование появится после подключения DeepSeek и подписки"));
+$("#save").addEventListener("click", () => {
+  const r = S.reading; if (r.saved) return;
+  const h = store.get("tarot_history_v1", []);
+  h.unshift({ t: Date.now(), spread: r.spread, q: r.q, cards: r.cards, fav: false });
+  store.set("tarot_history_v1", h.slice(0, 200));
+  r.saved = true; $("#save").textContent = "Сохранено"; toast("Расклад сохранён в историю");
+});
+let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(fitBoard, 80); });
+$("#useRev").addEventListener("change", e => { $("#useRev2").checked = e.target.checked; });
+$("#useRev2").addEventListener("change", e => { $("#useRev").checked = e.target.checked; });
+
+/* ---------- карточка карты ---------- */
+function openSheet(id, rev, posName, free) {
+  const c = BY_ID[id]; let cur = !!rev;
+  const sh = $("#sheet");
+  const draw = () => {
+    const d = cur ? c.r : c.u, kws = cur ? c.kr : c.kw;
+    sh.innerHTML = `
+      <button class="icon-btn close" aria-label="Закрыть">✕</button>
+      <div class="pic"><img class="${cur ? "rev" : ""}" src="${c.img}" alt="${esc(c.n)}"></div>
+      <div>
+        ${posName ? `<span class="tag">${esc(posName)}</span>` : `<span class="tag">${SUITS[c.a]}</span>`}
+        <h2 id="sheetTitle" style="margin-top:8px">${esc(c.n)}</h2>
+        <div class="seg" role="group" aria-label="Положение карты">
+          <button data-rev="0" aria-pressed="${!cur}">Прямая</button><button data-rev="1" aria-pressed="${cur}">Перевёрнутая</button>
+        </div>
+        <div class="kw">${kws.map(k => `<span class="chip">${esc(k)}</span>`).join("")}</div>
+        <div class="block"><h4>Суть</h4><p>${esc(d.e)}</p></div>
+        <div class="block"><h4>Психология</h4><p>${esc(d.p)}</p></div>
+        <div class="block"><h4>Работа и карьера</h4><p>${esc(d.c)}</p></div>
+        <div class="block"><h4>Отношения</h4><p>${esc(d.l)}</p></div>
+        <div class="block"><h4>Состояние и решения</h4><p>${esc(d.s)}</p></div>
+      </div>`;
+    $(".close", sh).addEventListener("click", closeSheet);
+    $$(".seg button", sh).forEach(b => b.addEventListener("click", () => { cur = b.dataset.rev === "1"; draw(); }));
+  };
+  draw(); $(".close", sh).focus();
+  $("#overlay").hidden = false; document.body.style.overflow = "hidden";
+}
+function closeSheet() { $("#overlay").hidden = true; document.body.style.overflow = ""; }
+$("#overlay").addEventListener("click", e => { if (e.target.id === "overlay") closeSheet(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#overlay").hidden) closeSheet(); });
+
+/* ---------- значения карт ---------- */
+function renderLib() {
+  const f = $("#filters");
+  const opts = [["all", "Все"], ...Object.entries(SUITS)];
+  f.innerHTML = opts.map(([k, v]) => `<button data-f="${k}" aria-pressed="${S.filter === k}">${v}</button>`).join("") +
+    `<input type="search" id="search" placeholder="Найти карту или слово" aria-label="Поиск" value="${esc(S.q)}">`;
+  $$("button", f).forEach(b => b.addEventListener("click", () => { S.filter = b.dataset.f; renderLib(); }));
+  $("#search", f).addEventListener("input", e => { S.q = e.target.value; drawLibGrid(); });
+  drawLibGrid();
+}
+function drawLibGrid() {
+  const q = S.q.trim().toLowerCase();
+  const list = CARDS.filter(c => (S.filter === "all" || c.a === S.filter) &&
+    (!q || c.n.toLowerCase().includes(q) || c.kw.concat(c.kr).some(k => k.toLowerCase().includes(q))));
+  $("#libGrid").innerHTML = list.map(c => `<button class="tile" data-id="${c.id}"><img src="${c.img}" alt="${esc(c.n)}" loading="lazy"><span>${esc(c.n)}</span></button>`).join("");
+  $$(".tile").forEach(t => t.addEventListener("click", () => openSheet(t.dataset.id, false, "")));
+  $("#libEmpty").hidden = list.length > 0;
+}
+
+/* ---------- история ---------- */
+const fmt = t => new Date(t).toLocaleString("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+function renderHistory() {
+  const h = store.get("tarot_history_v1", []);
+  $("#histEmpty").hidden = h.length > 0;
+  $("#histList").innerHTML = h.map((e, i) => {
+    const sp = SPREADS.find(s => s.id === e.spread);
+    return `<div class="hist-item">
+      <div class="thumbs">${e.cards.slice(0, 5).map(k => `<img class="${k.rev ? "rev" : ""}" src="${BY_ID[k.id].img}" alt="">`).join("")}</div>
+      <div class="meta"><b>${sp.name}</b><div>${fmt(e.t)}${e.q ? " · «" + esc(e.q) + "»" : ""}</div></div>
+      <div class="hist-actions">
+        <button class="icon-btn" data-fav="${i}" aria-pressed="${!!e.fav}" aria-label="В избранное">★</button>
+        <button class="btn ghost small" data-view="${i}">Открыть</button>
+        <button class="icon-btn" data-del="${i}" aria-label="Удалить">✕</button>
+      </div></div>`;
+  }).join("");
+  $$("[data-fav]").forEach(b => b.addEventListener("click", () => { const h2 = store.get("tarot_history_v1", []); h2[+b.dataset.fav].fav = !h2[+b.dataset.fav].fav; store.set("tarot_history_v1", h2); renderHistory(); }));
+  $$("[data-del]").forEach(b => b.addEventListener("click", () => { const h2 = store.get("tarot_history_v1", []); h2.splice(+b.dataset.del, 1); store.set("tarot_history_v1", h2); renderHistory(); }));
+  $$("[data-view]").forEach(b => b.addEventListener("click", () => {
+    const e = store.get("tarot_history_v1", [])[+b.dataset.view];
+    S.spread = e.spread; renderSpreadList(); updateNote(); showTab("spreads"); startReading(e.spread, e.cards, e.q, true); S.reading.saved = true; $("#save").textContent = "Сохранено";
+  }));
+}
+
+/* ---------- старт ---------- */
+renderSpreadList(); updateNote(); renderLib();
+</script>
