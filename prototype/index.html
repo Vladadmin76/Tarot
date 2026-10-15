@@ -230,12 +230,30 @@ table.matrix { border-collapse: collapse; width: 100%; min-width: 560px; font-si
 .pic img.zoomable { cursor: pointer; }
 .zoom { position: fixed; inset: 0; z-index: 90; cursor: pointer; touch-action: manipulation; }
 .zoom img { position: absolute; border-radius: 12px; box-shadow: 0 20px 60px #000c; will-change: transform; display: block; }
+.muted { color: var(--muted); font-size: 13px; }
+.urows { display: grid; gap: 8px; }
+.urow { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; }
+.urow.blocked { opacity: .6; }
+.uact { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.rolebadge { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 1px 8px; margin-left: 6px; }
+.pform { display: grid; gap: 10px; }
+.prow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.prow select, .prow input[type=number], .prow input[type=date], .prow input[type=text] { width: auto; min-width: 0; }
+.check { display: flex; align-items: center; gap: 8px; min-width: 190px; }
+.check input { width: 18px; height: 18px; accent-color: var(--accent); }
+.code { font-family: ui-monospace, Menlo, Consolas, monospace; letter-spacing: .06em; color: var(--accent); font-size: 17px; }
+.codes { display: grid; gap: 8px; margin-top: 10px; }
+.codeitem { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; }
+.testbox { border: 1px dashed var(--line); border-radius: var(--radius); padding: 14px; margin-top: 18px; }
+@media (max-width: 640px) { .urow { grid-template-columns: 1fr; } .uact { justify-content: flex-start; } }
 .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 18px; border-radius: 999px; z-index: 80; font-size: 14px; max-width: 90vw; }
 
 @media (max-width: 640px) {
   .brand small { display: none; }
   header.top { padding-top: 6px; }
   .uname { display: none; }
+  .user { min-width: 0; max-width: 62vw; }
+  .plan { overflow: hidden; text-overflow: ellipsis; }
   .user { padding-right: 6px; }
   .bar-title b { font-size: 18px; }
   .hist-item { grid-template-columns: 1fr auto; } .hist-item .thumbs { display: none; }
@@ -257,6 +275,7 @@ table.matrix { border-collapse: collapse; width: 100%; min-width: 560px; font-si
         <button role="menuitem" data-tab="lib" aria-current="false">Значения</button>
         <button role="menuitem" data-tab="sub" aria-current="false">Подписка</button>
         <button role="menuitem" data-tab="set" aria-current="false">Профиль</button>
+        <button role="menuitem" data-tab="admin" aria-current="false" id="menuAdmin" hidden>Администрирование</button>
       </div>
     </div>
     <div class="brand">Таро <small>Космический мистицизм</small></div>
@@ -337,11 +356,36 @@ table.matrix { border-collapse: collapse; width: 100%; min-width: 560px; font-si
     <!-- Подписка и тарифы -->
     <section class="screen" id="sc-sub"><div class="pane">
       <h1 class="title">Подписка</h1>
-      <p class="lead">Тестовый режим. Выберите тариф, чтобы посмотреть, как выглядит кабинет с ограничениями, или отметьте галочками, что входит в каждый тариф. Выбор запоминается в этом браузере.</p>
+      <p class="lead">Ваш тариф и бонусы. Если у вас есть промокод, введите его ниже.</p>
+      <div class="cols2" style="margin-top:12px">
+        <div class="panel stack">
+          <h3>Промокод</h3>
+          <div class="prow"><input type="text" id="promoInput" placeholder="Например: TARO-AB12-CD34" autocomplete="off" style="flex:1; min-width:180px"><button class="btn" id="promoApply">Применить</button></div>
+          <p class="hint" id="promoMsg" style="text-align:left"></p>
+        </div>
+        <div class="panel stack"><h3>Мои бонусы</h3><div id="bonusBox"></div></div>
+      </div>
+      <div class="testbox">
+        <h3 style="font-size:22px">Тестовый режим</h3>
+        <p class="lead" style="margin-bottom:6px">Для проверки внешнего вида. Роль показывает, что видят разные люди. Тариф показывает кабинет с ограничениями; галочками ниже отмечается, что входит в каждый тариф. Выбор запоминается в этом браузере.</p>
+        <span class="muted">Роль</span><br>
+        <div class="seg" id="roleSeg" role="group" aria-label="Роль для проверки">
+          <button data-role="user" aria-pressed="false">Пользователь</button><button data-role="helper" aria-pressed="false">Помощник</button><button data-role="admin" aria-pressed="true">Администратор</button>
+        </div><br>
+        <span class="muted">Тариф</span><br>
       <div class="seg" id="planSeg" role="group" aria-label="Тариф для проверки"></div>
       <p class="hint" id="planNote" style="text-align:left; margin-bottom:10px"></p>
       <div class="matrix-wrap"><table class="matrix" id="matrix"></table></div>
       <p style="margin-top:12px"><button class="btn ghost small" id="resetPlans">Вернуть начальные тарифы</button></p>
+      </div>
+    </div></section>
+
+    <!-- Администрирование (только администратор и помощник) -->
+    <section class="screen" id="sc-admin"><div class="pane">
+      <h1 class="title">Администрирование</h1>
+      <p class="lead" id="adminLead"></p>
+      <div class="seg" id="adminTabs" role="group" aria-label="Разделы администрирования"></div>
+      <div id="adminBody" style="margin-top:6px"></div>
     </div></section>
 
     <!-- Профиль -->
@@ -350,7 +394,10 @@ table.matrix { border-collapse: collapse; width: 100%; min-width: 560px; font-si
       <p class="lead">Макет настроек. Вход и пароль будут на этапе с базой данных.</p>
       <div class="cols2" style="margin-top:12px">
         <div class="panel stack">
-          <h3>Настройки</h3>
+          <h3>Аккаунт</h3>
+          <div class="muted">Логин: <b style="color:var(--fg)">vladimir</b><br>Имя: <b style="color:var(--fg)">Владимир</b><br>Почта: <b style="color:var(--fg)">vladimir@example.com</b> <span class="saved">✓ подтверждена</span></div>
+          <p class="hint" style="text-align:left">Изменить имя и почту можно будет после подключения базы.</p>
+          <h3 style="margin-top:6px">Настройки</h3>
           <label class="field" for="lang">Язык<select id="lang"><option>Русский</option><option disabled>English (скоро)</option><option disabled>Español (скоро)</option></select></label>
           <label class="switch" for="useRev2"><input type="checkbox" id="useRev2" checked> Перевёрнутые карты</label>
           <h3 style="margin-top:6px">Цвет оформления</h3>
@@ -418,8 +465,18 @@ const TAR = (() => {
   return t;
 })();
 const saveTar = () => store.set("tarot_tariff_v1", TAR);
-const can = id => TAR.current === "all" || !!TAR.matrix[TAR.current][id];
-function limit(id) { if (TAR.current === "all") return Infinity; const v = TAR.matrix[TAR.current][id]; return v === "" || v == null ? Infinity : Number(v); }
+// Бонусы от промокодов: дни более высокого тарифа, открытые расклады на срок, дополнительные ИИ-толкования.
+const BONK = "tarot_bonus_v1";
+const BON = Object.assign({ aiCredits: 0, plan: null, planUntil: 0, spreads: {} }, store.get(BONK, {}));
+const saveBon = () => store.set(BONK, BON);
+function effPlan() {
+  if (TAR.current === "all") return "all";
+  if (BON.plan && BON.planUntil > Date.now() && PLAN_ORDER.indexOf(BON.plan) > PLAN_ORDER.indexOf(TAR.current)) return BON.plan;
+  return TAR.current;
+}
+const spreadBonus = id => id.startsWith("spread.") && (BON.spreads[id.slice(7)] || 0) > Date.now();
+const can = id => { const p = effPlan(); return p === "all" || !!TAR.matrix[p][id] || spreadBonus(id); };
+function limit(id) { const p = effPlan(); if (p === "all") return Infinity; const v = TAR.matrix[p][id]; return v === "" || v == null ? Infinity : Number(v); }
 function minPlan(id) { return PLAN_ORDER.find(p => TAR.matrix[p][id]) || "pro"; }
 function openUpsell(id, what) {
   const p = minPlan(id), sh = $("#sheet");
@@ -438,7 +495,7 @@ function openUpsell(id, what) {
 }
 function setPlan(p) { TAR.current = p; saveTar(); refreshPlan(); }
 function refreshPlan() {
-  $("#planChip").textContent = PLAN_NAMES[TAR.current];
+  updateChip();
   renderSpreadList(); updateSetup(); renderPlans(); renderHistory(); renderLib();
   renderBot();
   if (S.screen === "result") renderResult();
@@ -480,6 +537,7 @@ function goTab(t) {
   if (t === "spreads") show("pick");
   else show(t);
   if (t === "hist") renderHistory();
+  if (t === "admin") renderAdmin();
 }
 const burger = $("#burger"), menu = $("#menu");
 function setMenu(open) { menu.hidden = !open; burger.setAttribute("aria-expanded", String(open)); }
@@ -656,23 +714,28 @@ function aiDemoText(r) {
 }
 function renderAI() {
   const r = S.reading, box = $("#aiBox");
+  const viaPlan = can("ai") && aiUsed() < limit("ai.limit"), hasCredit = BON.aiCredits > 0;
   let html = `<span class="tag">ИИ-толкование</span><h3 style="font-size:22px">Разбор расклада целиком</h3>`;
-  if (!can("ai")) {
-    html += `<p class="lead" style="margin:0; font-size:15px">Связный разбор всех позиций вместе, с учётом вашего вопроса и с советом в конце.</p>
-      <div class="blur" aria-hidden="true"><i style="width:96%"></i><i style="width:88%"></i><i style="width:92%"></i><i style="width:60%"></i><i style="width:90%"></i></div>
+  const intro = `<p class="lead" style="margin:0; font-size:15px">Связный разбор всех позиций вместе, с учётом вашего вопроса и с советом в конце.</p>`;
+  if (!can("ai") && !hasCredit) {
+    html += intro + `<div class="blur" aria-hidden="true"><i style="width:96%"></i><i style="width:88%"></i><i style="width:92%"></i><i style="width:60%"></i><i style="width:90%"></i></div>
       <button class="btn" id="aiBtn">🔒 Доступно по подписке</button>`;
   } else {
-    const lim = limit("ai.limit"), used = aiUsed();
-    if (r.aiText) html += `<div class="ai-text"><span class="demo">Демо: текст собран из значений карт</span>${r.aiText.map(t => `<p>${esc(t)}</p>`).join("")}</div>`;
-    else html += `<p class="lead" style="margin:0; font-size:15px">Связный разбор всех позиций вместе, с учётом вашего вопроса и с советом в конце.</p><button class="btn" id="aiBtn">Получить толкование</button>`;
-    html += `<p class="hint" style="text-align:left">${Number.isFinite(lim) ? `Сегодня использовано ${used} из ${lim}.` : "Без ограничения по числу."}</p>`;
+    if (r.aiText) html += `<div class="ai-text"><span class="demo">Демо: текст собран из значений карт</span>${r.aiText.map(x => `<p>${esc(x)}</p>`).join("")}</div>`;
+    else html += intro + `<button class="btn" id="aiBtn">Получить толкование</button>`;
+    const lim = limit("ai.limit");
+    let note = can("ai") ? (Number.isFinite(lim) ? `Сегодня использовано ${aiUsed()} из ${lim}.` : "Без ограничения по числу.") : "";
+    if (hasCredit) note += ` Бонусных толкований: ${BON.aiCredits}.`;
+    html += `<p class="hint" style="text-align:left">${note.trim()}</p>`;
   }
   box.innerHTML = html;
   const btn = $("#aiBtn"); if (!btn) return;
   btn.addEventListener("click", () => {
-    if (!can("ai")) return openUpsell("ai", "ИИ-толкование расклада");
-    if (aiUsed() >= limit("ai.limit")) return openUpsell("ai", "Лимит ИИ-толкований на сегодня исчерпан");
-    store.set(AIK, { d: dayKey(), n: aiUsed() + 1 }); S.reading.aiText = aiDemoText(S.reading); renderAI();
+    const planOk = can("ai") && aiUsed() < limit("ai.limit");
+    if (planOk) store.set(AIK, { d: dayKey(), n: aiUsed() + 1 });
+    else if (BON.aiCredits > 0) { BON.aiCredits--; saveBon(); renderBonuses(); }
+    else return openUpsell("ai", can("ai") ? "Лимит ИИ-толкований на сегодня исчерпан" : "ИИ-толкование расклада");
+    S.reading.aiText = aiDemoText(S.reading); renderAI();
   });
 }
 
@@ -869,10 +932,202 @@ function openBot(editOnly) {
 }
 $("#logout").addEventListener("click", () => toast("Выход из аккаунта подключим на этапе с базой"));
 
+/* ================= роли, промокоды, администрирование (макет) ================= */
+const ROLE = { v: store.get("tarot_role_v1", "admin") };
+const ROLE_NAMES = { user: "Пользователь", helper: "Помощник", admin: "Администратор" };
+const ME = "vladimir";
+function updateChip() { $("#planChip").textContent = PLAN_NAMES[TAR.current] + (ROLE.v !== "user" ? " · " + ROLE_NAMES[ROLE.v] : ""); }
+function applyRole() {
+  $("#menuAdmin").hidden = ROLE.v === "user";
+  $$("#roleSeg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.role === ROLE.v));
+  if (ROLE.v === "user" && S.screen === "admin") show("pick");
+  updateChip();
+}
+$$("#roleSeg button").forEach(b => b.addEventListener("click", () => {
+  ROLE.v = b.dataset.role; store.set("tarot_role_v1", ROLE.v); applyRole(); toast("Роль для проверки: " + ROLE_NAMES[ROLE.v]);
+}));
+
+const DAY = 86400000, fmtDate = t => new Date(t).toLocaleDateString("ru-RU");
+const UK = "tarot_users_v1", PK = "tarot_promos_v1", LK = "tarot_log_v1";
+const USERS0 = [
+  { login: "vladimir", name: "Владимир", email: "vladimir@example.com", plan: "", until: 0, reg: "01.10.2026", role: "admin", blocked: false },
+  { login: "anna_k", name: "Анна К.", email: "anna.k@example.com", plan: "lite", until: Date.now() + 12 * DAY, reg: "05.10.2026", role: "user", blocked: false },
+  { login: "mikhail77", name: "Михаил", email: "mikhail77@example.com", plan: "", until: 0, reg: "07.10.2026", role: "user", blocked: false },
+  { login: "olga_sun", name: "Ольга", email: "olga.sun@example.com", plan: "standard", until: Date.now() + 25 * DAY, reg: "08.10.2026", role: "helper", blocked: false },
+  { login: "dmitri", name: "Дмитрий", email: "dmitri@example.com", plan: "", until: 0, reg: "11.10.2026", role: "user", blocked: false },
+  { login: "tarolog_fan", name: "Светлана", email: "svetlana@example.com", plan: "pro", until: Date.now() + 40 * DAY, reg: "12.10.2026", role: "user", blocked: true }
+];
+const getUsers = () => store.get(UK, USERS0);
+const setUsers = u => store.set(UK, u);
+const getPromos = () => store.get(PK, []);
+const setPromos = p => store.set(PK, p);
+const getLog = () => store.get(LK, []);
+function logAct(text) { const l = getLog(); l.unshift({ t: Date.now(), who: ROLE_NAMES[ROLE.v], text }); store.set(LK, l.slice(0, 200)); }
+const planLabel = u => u.plan && u.until > Date.now() ? `${PLAN_NAMES[u.plan]} до ${fmtDate(u.until)}` : "нет";
+const SPREAD_NAMES = { cross: "Малый крест", celtic: "Кельтский крест" };
+function bonusText(b) {
+  const out = [];
+  if (b.plan) out.push(`подписка «${PLAN_NAMES[b.plan.plan]}» на ${b.plan.days} дн.`);
+  if (b.ai) out.push(`ИИ-толкований: ${b.ai}`);
+  if (b.spreads) out.push(`расклады ${b.spreads.ids.map(i => "«" + SPREAD_NAMES[i] + "»").join(", ")} на ${b.spreads.days} дн.`);
+  return out.join("; ");
+}
+async function copyText(text, okMsg) {
+  try { await navigator.clipboard.writeText(text); toast(okMsg); } catch { toast(text); }
+}
+
+/* --- промокод у пользователя --- */
+function renderBonuses() {
+  const lines = [];
+  if (BON.aiCredits > 0) lines.push(`ИИ-толкований в запасе: <b>${BON.aiCredits}</b>`);
+  if (BON.plan && BON.planUntil > Date.now()) lines.push(`Тариф «${PLAN_NAMES[BON.plan]}» по промокоду до <b>${fmtDate(BON.planUntil)}</b>`);
+  for (const [id, until] of Object.entries(BON.spreads)) if (until > Date.now()) lines.push(`Расклад «${SPREAD_NAMES[id]}» открыт до <b>${fmtDate(until)}</b>`);
+  $("#bonusBox").innerHTML = lines.length ? lines.map(l => `<p style="margin:0">${l}</p>`).join("") : `<p class="muted" style="margin:0">Бонусов пока нет.</p>`;
+}
+function redeem(raw) {
+  const code = raw.trim().toUpperCase().replace(/\s+/g, "");
+  if (!code) return { ok: false, msg: "Введите промокод." };
+  const promos = getPromos(), pr = promos.find(x => x.code === code);
+  if (!pr) return { ok: false, msg: "Такого кода нет. Проверьте, нет ли опечатки." };
+  if (pr.until && Date.now() > pr.until + DAY) return { ok: false, msg: "Срок действия кода закончился." };
+  if (pr.forUser && pr.forUser !== ME) return { ok: false, msg: "Этот код выдан другому пользователю." };
+  if (pr.uses.some(u => u.user === ME)) return { ok: false, msg: "Вы уже вводили этот код." };
+  if (pr.max && pr.uses.length >= pr.max) return { ok: false, msg: "Код уже использован максимальное число раз." };
+  const b = pr.bonus, now = Date.now();
+  if (b.ai) BON.aiCredits += b.ai;
+  if (b.plan) {
+    const base = BON.planUntil > now ? BON.planUntil : now, higher = !BON.plan || BON.planUntil <= now || PLAN_ORDER.indexOf(b.plan.plan) > PLAN_ORDER.indexOf(BON.plan);
+    BON.plan = higher ? b.plan.plan : BON.plan; BON.planUntil = base + b.plan.days * DAY;
+  }
+  if (b.spreads) for (const id of b.spreads.ids) BON.spreads[id] = Math.max(BON.spreads[id] || 0, now) + b.spreads.days * DAY;
+  saveBon(); pr.uses.push({ user: ME, t: now }); setPromos(promos);
+  logAct(`Промокод ${code} введён пользователем ${ME}`);
+  refreshPlan(); renderBonuses();
+  return { ok: true, msg: "Готово! Вы получили: " + bonusText(b) + "." };
+}
+$("#promoApply").addEventListener("click", () => {
+  const r = redeem($("#promoInput").value), m = $("#promoMsg");
+  m.textContent = r.msg; m.style.color = r.ok ? "var(--good)" : "var(--warn)"; if (r.ok) $("#promoInput").value = "";
+});
+$("#promoInput").addEventListener("keydown", e => { if (e.key === "Enter") $("#promoApply").click(); });
+
+/* --- раздел администрирования --- */
+const A = { tab: "users", q: "" };
+function renderAdmin() {
+  const admin = ROLE.v === "admin";
+  if (!admin) A.tab = "users";
+  $("#adminLead").textContent = admin ? "Вы видите всё: пользователей, промокоды, помощников и журнал действий." : "Раздел помощника: пользователи с почтой, выдача подписки и блокировка. Остальное видит только администратор.";
+  const tabs = [["users", "Пользователи"], ["promo", "Промокоды"], ["helpers", "Помощники"], ["log", "Журнал"]];
+  $("#adminTabs").hidden = !admin;
+  $("#adminTabs").innerHTML = tabs.map(([k, v]) => `<button data-at="${k}" aria-pressed="${A.tab === k}">${v}</button>`).join("");
+  $$("#adminTabs button").forEach(b => b.addEventListener("click", () => { A.tab = b.dataset.at; renderAdmin(); }));
+  ({ users: adminUsers, promo: adminPromo, helpers: adminHelpers, log: adminLog })[A.tab]();
+}
+function adminUsers() {
+  const admin = ROLE.v === "admin", q = A.q.trim().toLowerCase();
+  const list = getUsers().filter(u => !q || [u.login, u.name, u.email].some(x => x.toLowerCase().includes(q)));
+  $("#adminBody").innerHTML = `<div class="filters"><input type="search" id="uq" placeholder="Найти по логину, имени или почте" aria-label="Поиск пользователя" value="${esc(A.q)}"></div>
+    <div class="urows">${list.map(u => `<div class="urow${u.blocked ? " blocked" : ""}">
+      <div><b>${esc(u.name)}</b> <span class="muted">@${esc(u.login)}</span>${u.role !== "user" ? `<span class="rolebadge">${ROLE_NAMES[u.role]}</span>` : ""}${u.blocked ? ' <span class="lock">заблокирован</span>' : ""}
+        <div class="muted">${esc(u.email)} · зарегистрирован ${u.reg} · тариф: ${planLabel(u)}</div></div>
+      <div class="uact"><button class="btn ghost small" data-act="mail" data-l="${u.login}">Скопировать почту</button>
+        ${u.role === "admin" ? "" : `<button class="btn ghost small" data-act="grant" data-l="${u.login}">Выдать подписку</button><button class="btn ghost small" data-act="block" data-l="${u.login}">${u.blocked ? "Разблокировать" : "Заблокировать"}</button>`}
+        ${admin && u.role !== "admin" ? `<button class="btn ghost small" data-act="helper" data-l="${u.login}">${u.role === "helper" ? "Снять помощника" : "Сделать помощником"}</button>` : ""}</div></div>`).join("") || '<p class="empty">Никого не найдено.</p>'}</div>`;
+  const q2 = $("#uq"); q2.addEventListener("input", e => { A.q = e.target.value; adminUsers(); const n = $("#uq"); n.focus(); n.setSelectionRange(n.value.length, n.value.length); });
+  $("#adminBody").onclick = e => {
+    const b = e.target.closest("[data-act]"); if (!b) return;
+    const us = getUsers(), u = us.find(x => x.login === b.dataset.l);
+    if (b.dataset.act === "mail") return copyText(u.email, "Почта скопирована: " + u.email);
+    if (b.dataset.act === "grant") return openGrant(u.login);
+    if (b.dataset.act === "block") { u.blocked = !u.blocked; setUsers(us); logAct((u.blocked ? "Заблокирован " : "Разблокирован ") + u.login); }
+    if (b.dataset.act === "helper") { if (ROLE.v !== "admin") return; u.role = u.role === "helper" ? "user" : "helper"; setUsers(us); logAct((u.role === "helper" ? "Назначен помощником " : "Снята роль помощника у ") + u.login); }
+    renderAdmin();
+  };
+}
+function openGrant(login) {
+  const sh = $("#sheet"); sh.className = "sheet narrow";
+  sh.innerHTML = `<button class="icon-btn close" aria-label="Закрыть">✕</button><h2 style="font-size:28px">Выдать подписку</h2><p class="lead" style="margin:0">@${esc(login)}</p>
+    <label class="field" for="gp">Тариф<select id="gp">${PLAN_ORDER.filter(p => p !== "free").map(p => `<option value="${p}">${PLAN_NAMES[p]}</option>`).join("")}</select></label>
+    <label class="field" for="gd">На сколько дней<input type="number" id="gd" min="1" max="365" value="30"></label>
+    <button class="btn" id="gok" style="justify-self:start">Выдать</button>`;
+  $(".close", sh).addEventListener("click", closeSheet);
+  $("#gok").addEventListener("click", () => {
+    const days = Math.max(1, Math.min(365, +$("#gd").value || 0)), plan = $("#gp").value, us = getUsers(), u = us.find(x => x.login === login);
+    u.plan = plan; u.until = Math.max(Date.now(), u.until || 0) + days * DAY; setUsers(us);
+    logAct(`Выдана подписка «${PLAN_NAMES[plan]}» на ${days} дн. пользователю ${login}`);
+    closeSheet(); toast("Подписка выдана"); renderAdmin();
+  });
+  openOverlay();
+}
+function makeCode() { const al = "ABCDEFGHJKMNPQRSTUVWXYZ23456789", part = n => Array.from({ length: n }, () => al[rnd(al.length)]).join(""); return `TARO-${part(4)}-${part(4)}`; }
+function adminPromo() {
+  const promos = getPromos();
+  $("#adminBody").innerHTML = `<div class="panel pform">
+      <h3>Новый промокод</h3>
+      <p class="muted" style="margin:0">Отметьте, что даёт код, и укажите количество. Код создаётся сам.</p>
+      <div class="prow"><label class="check"><input type="checkbox" id="pbPlanOn"> Подписка</label>
+        <select id="pbPlan" aria-label="Тариф">${PLAN_ORDER.filter(p => p !== "free").map(p => `<option value="${p}">${PLAN_NAMES[p]}</option>`).join("")}</select>
+        <input type="number" id="pbPlanDays" min="1" value="30" aria-label="Дней"> <span class="muted">дней</span></div>
+      <div class="prow"><label class="check"><input type="checkbox" id="pbAiOn"> ИИ-толкования</label>
+        <input type="number" id="pbAiN" min="1" value="3" aria-label="Сколько толкований"> <span class="muted">штук</span></div>
+      <div class="prow"><label class="check"><input type="checkbox" id="pbSpOn"> Открыть расклады</label>
+        <label class="check" style="min-width:0"><input type="checkbox" id="pbSpCross" checked> Малый крест</label>
+        <label class="check" style="min-width:0"><input type="checkbox" id="pbSpCeltic"> Кельтский крест</label>
+        <input type="number" id="pbSpDays" min="1" value="14" aria-label="Дней"> <span class="muted">дней</span></div>
+      <div class="prow"><label class="field" for="pbUntil">Действует до<input type="date" id="pbUntil"></label>
+        <label class="field" for="pbMax">Использований всего<input type="number" id="pbMax" min="1" placeholder="без ограничения"></label>
+        <label class="field" for="pbFor">Только для логина<input type="text" id="pbFor" placeholder="необязательно" autocomplete="off"></label>
+        <label class="field" for="pbCode">Свой код<input type="text" id="pbCode" placeholder="пусто — создать сам" autocomplete="off"></label></div>
+      <div class="prow"><button class="btn" id="pbCreate">Создать код</button><span id="pbResult"></span></div>
+    </div>
+    <h3 style="margin:18px 0 0; font-size:22px">Созданные коды</h3>
+    <div class="codes">${promos.map(x => `<div class="codeitem"><div><span class="code">${x.code}</span><div class="muted">${bonusText(x.bonus)}${x.forUser ? ` · только для @${esc(x.forUser)}` : ""}${x.until ? ` · до ${fmtDate(x.until)}` : ""}</div></div>
+        <div class="muted">Использован: ${x.uses.length}${x.max ? " из " + x.max : ""}</div><button class="btn ghost small" data-copy="${x.code}">Скопировать</button></div>`).join("") || '<p class="empty">Кодов пока нет.</p>'}</div>`;
+  $("#adminBody").onclick = e => { const b = e.target.closest("[data-copy]"); if (b) copyText(b.dataset.copy, "Код скопирован: " + b.dataset.copy); };
+  $("#pbCreate").addEventListener("click", () => {
+    const bonus = {};
+    if ($("#pbPlanOn").checked) { const d = +$("#pbPlanDays").value; if (!(d > 0)) return toast("Укажите число дней подписки"); bonus.plan = { plan: $("#pbPlan").value, days: Math.floor(d) }; }
+    if ($("#pbAiOn").checked) { const n = +$("#pbAiN").value; if (!(n > 0)) return toast("Укажите число ИИ-толкований"); bonus.ai = Math.floor(n); }
+    if ($("#pbSpOn").checked) {
+      const ids = ["cross", "celtic"].filter(i => $("#pbSp" + (i === "cross" ? "Cross" : "Celtic")).checked), d = +$("#pbSpDays").value;
+      if (!ids.length) return toast("Выберите хотя бы один расклад"); if (!(d > 0)) return toast("Укажите число дней"); bonus.spreads = { ids, days: Math.floor(d) };
+    }
+    if (!Object.keys(bonus).length) return toast("Отметьте хотя бы один бонус");
+    let code = $("#pbCode").value.trim().toUpperCase().replace(/\s+/g, "");
+    const ps = getPromos();
+    if (code) { if (ps.some(x => x.code === code)) return toast("Такой код уже есть"); } else { do { code = makeCode(); } while (ps.some(x => x.code === code)); }
+    const until = $("#pbUntil").value ? new Date($("#pbUntil").value + "T00:00:00").getTime() : 0, max = Math.floor(+$("#pbMax").value) || 0;
+    ps.unshift({ code, bonus, until, max, forUser: $("#pbFor").value.trim().toLowerCase(), uses: [], made: Date.now() }); setPromos(ps);
+    logAct(`Создан промокод ${code}: ${bonusText(bonus)}`);
+    adminPromo(); $("#pbResult").innerHTML = `Создан: <span class="code">${code}</span>`; copyText(code, "Код создан и скопирован: " + code);
+  });
+}
+function adminHelpers() {
+  const us = getUsers(), helpers = us.filter(u => u.role === "helper"), cand = us.filter(u => u.role === "user");
+  $("#adminBody").innerHTML = `<div class="panel pform"><h3>Помощники</h3>
+      <p class="muted" style="margin:0">Помощник видит пользователей и их почту, выдаёт подписку и блокирует. Тарифы, промокоды, назначение помощников и журнал ему недоступны.</p>
+      <div class="urows">${helpers.map(u => `<div class="urow"><div><b>${esc(u.name)}</b> <span class="muted">@${esc(u.login)} · ${esc(u.email)}</span></div><div class="uact"><button class="btn ghost small" data-un="${u.login}">Снять роль</button></div></div>`).join("") || '<p class="muted">Помощников пока нет.</p>'}</div>
+      <div class="prow"><label class="field" for="hAdd" style="flex:1; min-width:200px">Добавить по никнейму<input type="text" id="hAdd" list="hList" placeholder="Начните вводить логин" autocomplete="off"></label>
+        <datalist id="hList">${cand.map(u => `<option value="${esc(u.login)}">${esc(u.name)}</option>`).join("")}</datalist>
+        <button class="btn" id="hBtn" style="align-self:end">Сделать помощником</button></div></div>`;
+  $("#adminBody").onclick = e => { const b = e.target.closest("[data-un]"); if (!b) return; const a = getUsers(), u = a.find(x => x.login === b.dataset.un); u.role = "user"; setUsers(a); logAct("Снята роль помощника у " + u.login); renderAdmin(); };
+  $("#hBtn").addEventListener("click", () => {
+    const a = getUsers(), v = $("#hAdd").value.trim().toLowerCase(), u = a.find(x => x.login.toLowerCase() === v);
+    if (!u) return toast("Пользователь с таким логином не найден");
+    if (u.role !== "user") return toast("Этот пользователь уже " + ROLE_NAMES[u.role].toLowerCase());
+    u.role = "helper"; setUsers(a); logAct("Назначен помощником " + u.login); toast("Помощник назначен"); renderAdmin();
+  });
+}
+function adminLog() {
+  const l = getLog();
+  $("#adminBody").onclick = null;
+  $("#adminBody").innerHTML = l.length ? `<div class="urows">${l.map(x => `<div class="urow"><div>${esc(x.text)}<div class="muted">${esc(x.who)} · ${new Date(x.t).toLocaleString("ru-RU")}</div></div></div>`).join("")}</div>` : '<p class="empty">Действий пока нет.</p>';
+}
+
 /* ================= старт ================= */
 renderSpreadList(); updateSetup(); renderLib(); renderHistory(); renderPlans();
-$("#planChip").textContent = PLAN_NAMES[TAR.current];
-renderBot();
+updateChip();
+applyRole(); renderBonuses(); renderBot();
 </script>
 
 </body>
