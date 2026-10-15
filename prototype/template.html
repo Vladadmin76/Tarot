@@ -2,8 +2,8 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Forum&family=Onest:wght@400;500;600&display=swap">
 <style>
-/* Идея: ночное небо над столом гадалки. Тёмный индиго, одна тёплая акцентная краска на выбор (золото / аметист / лазурь),
-   карты крупно, текст спокойный. Дисплейный шрифт Forum только для заголовков и названий карт. */
+/* Идея: личный кабинет сайта. Каждый шаг занимает весь экран и сменяется следующим, без прокрутки страницы.
+   Ночное небо, тёмный индиго, одна тёплая акцентная краска на выбор. Forum только для заголовков и названий карт. */
 :root {
   --bg: #0a0918;
   --bg-2: #100e26;
@@ -15,8 +15,8 @@
   --accent: #dcb468;
   --accent-ink: #1a1306;
   --accent-soft: rgba(220, 180, 104, .14);
-  --good: #7fd6a4;
   --warn: #f0a07a;
+  --good: #7fd6a4;
   --display: "Forum", "Times New Roman", serif;
   --body: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
   --radius: 14px;
@@ -26,103 +26,97 @@
 :root[data-accent="azure"] { --accent: #6fd6d2; --accent-ink: #04201f; --accent-soft: rgba(111, 214, 210, .14); }
 
 * { box-sizing: border-box; }
-html, body { min-height: 100%; }
+html, body { height: 100%; }
 body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--fg);
-  font: 16px/1.55 var(--body);
+  margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.5 var(--body);
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 0 48px;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 .sky {
   position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background:
-    radial-gradient(1px 1px at 12% 18%, #fff9 50%, transparent 51%),
-    radial-gradient(1px 1px at 78% 12%, #fff8 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 44% 34%, #fff7 50%, transparent 51%),
-    radial-gradient(1px 1px at 90% 52%, #fff6 50%, transparent 51%),
-    radial-gradient(1px 1px at 22% 66%, #fff7 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 62% 82%, #fff6 50%, transparent 51%),
-    radial-gradient(1px 1px at 8% 90%, #fff6 50%, transparent 51%),
-    radial-gradient(900px 500px at 50% -10%, var(--accent-soft), transparent 70%),
-    linear-gradient(180deg, var(--bg-2), var(--bg) 60%);
+    radial-gradient(1px 1px at 12% 18%, #fff9 50%, transparent 51%), radial-gradient(1px 1px at 78% 12%, #fff8 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 44% 34%, #fff7 50%, transparent 51%), radial-gradient(1px 1px at 90% 52%, #fff6 50%, transparent 51%),
+    radial-gradient(1px 1px at 22% 66%, #fff7 50%, transparent 51%), radial-gradient(1.5px 1.5px at 62% 82%, #fff6 50%, transparent 51%),
+    radial-gradient(900px 500px at 50% -10%, var(--accent-soft), transparent 70%), linear-gradient(180deg, var(--bg-2), var(--bg) 60%);
 }
-.wrap { max-width: 1080px; margin: 0 auto; }
 h1, h2, h3, .display { font-family: var(--display); font-weight: 400; letter-spacing: .01em; text-wrap: balance; margin: 0; }
 button { font: inherit; color: inherit; cursor: pointer; }
-button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
-  outline: 2px solid var(--accent); outline-offset: 2px;
-}
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* ---- шапка ---- */
-header.top {
-  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
-  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-  padding: 12px 0; margin-bottom: 8px;
-  background: linear-gradient(180deg, var(--bg) 70%, transparent);
-}
-.brand { font-family: var(--display); font-size: 28px; color: var(--accent); margin-right: auto; display: flex; align-items: baseline; gap: 10px; }
+/* ---- каркас ---- */
+.app { height: 100%; max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; }
+header.top { flex: none; display: flex; align-items: center; gap: 12px 16px; flex-wrap: wrap; padding: 10px 0 8px; }
+.brand { font-family: var(--display); font-size: 27px; color: var(--accent); margin-right: auto; display: flex; align-items: baseline; gap: 10px; line-height: 1.1; }
 .brand small { font: 500 11px/1 var(--body); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.user { display: flex; align-items: center; gap: 9px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 12px 4px 4px; }
+.ava { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-weight: 600; font-size: 14px; }
+.uname { font-size: 14px; }
+.plan { font-size: 12px; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
 nav.tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px; }
-nav.tabs button { border: 0; background: none; padding: 8px 16px; border-radius: 999px; color: var(--muted); font-weight: 500; }
+nav.tabs button { border: 0; background: none; padding: 7px 15px; border-radius: 999px; color: var(--muted); font-weight: 500; white-space: nowrap; }
 nav.tabs button[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
-.accents { display: flex; gap: 8px; align-items: center; }
-.accents button { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line); padding: 0; }
-.accents button[aria-pressed="true"] { border-color: var(--fg); }
-@media (max-width: 640px) {
-  .brand small { display: none; }
-  nav.tabs { order: 3; width: 100%; overflow-x: auto; scrollbar-width: none; }
-  nav.tabs button { flex: 1 0 auto; padding: 8px 9px; white-space: nowrap; font-size: 14px; }
+.stage { flex: 1; min-height: 0; position: relative; overflow: hidden; padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+.screen {
+  position: absolute; inset: 0 0 calc(10px + env(safe-area-inset-bottom, 0px)) 0; display: flex; flex-direction: column;
+  opacity: 0; visibility: hidden; transform: translateX(28px); pointer-events: none; overflow: hidden;
+  transition: opacity .35s ease, transform .35s ease, visibility 0s linear .35s;
 }
-.dot-gold { background: #dcb468; } .dot-amethyst { background: #b793ff; } .dot-azure { background: #6fd6d2; }
+.screen.on { opacity: 1; visibility: visible; transform: none; pointer-events: auto; transition: opacity .35s ease, transform .35s ease; }
+.screen.back { transform: translateX(-28px); }
+.pane { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 2px 12px; }
 
-/* ---- общие элементы ---- */
-.lead { color: var(--muted); max-width: 62ch; margin: 6px 0 0; }
-.section-title { font-size: clamp(28px, 5vw, 44px); line-height: 1.1; margin: 22px 0 6px; }
-.btn {
-  border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink);
-  padding: 12px 22px; border-radius: 999px; font-weight: 600; transition: transform .15s, filter .15s;
-}
-.btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+/* ---- общие ---- */
+.lead { color: var(--muted); max-width: 62ch; margin: 4px 0 0; }
+.title { font-size: clamp(26px, 4.4vw, 40px); line-height: 1.1; margin: 4px 0 2px; }
+.btn { border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); padding: 11px 22px; border-radius: 999px; font-weight: 600; transition: transform .15s, filter .15s; white-space: nowrap; }
+.btn:hover:not([disabled]) { filter: brightness(1.08); transform: translateY(-1px); }
 .btn.ghost { background: none; color: var(--accent); }
-.btn.small { padding: 7px 14px; font-size: 14px; }
-.btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
+.btn.small { padding: 7px 15px; font-size: 14px; }
+.btn[disabled] { opacity: .4; cursor: not-allowed; }
 .chip { display: inline-block; padding: 3px 11px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 13px; }
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
+.tag { display: inline-block; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 2px 10px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
 label.field { display: grid; gap: 6px; font-size: 14px; color: var(--muted); }
-input[type=text], input[type=password], input[type=search], textarea, select {
-  background: var(--bg-2); color: var(--fg); border: 1px solid var(--line); border-radius: 10px; padding: 11px 13px; font: inherit; width: 100%;
-}
+input[type=text], input[type=search], input[type=number], select { background: var(--bg-2); color: var(--fg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 13px; font: inherit; width: 100%; }
+input[disabled] { opacity: .5; }
 .switch { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
-.switch input { appearance: none; width: 42px; height: 24px; border-radius: 999px; background: var(--line); position: relative; transition: background .2s; flex: none; }
+.switch input { appearance: none; width: 42px; height: 24px; border-radius: 999px; background: var(--line); position: relative; transition: background .2s; flex: none; margin: 0; }
 .switch input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--fg); transition: transform .2s; }
 .switch input:checked { background: var(--accent); }
 .switch input:checked::after { transform: translateX(18px); background: var(--accent-ink); }
+.lock { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--warn); }
+.hint { color: var(--muted); font-size: 14px; margin: 0; text-align: center; }
+.bar { flex: none; display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; padding: 2px 0 8px; }
+.bar > :first-child { justify-self: start; } .bar > :last-child { justify-self: end; }
+.bar-title { text-align: center; line-height: 1.2; }
+.bar-title b { font-family: var(--display); font-weight: 400; font-size: 21px; display: block; }
+.bar-title span { font-size: 12px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+.dots { display: inline-flex; gap: 5px; margin-left: 8px; vertical-align: middle; }
+.dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+.dots i.on { background: var(--accent); }
 
-/* ---- расклады: выбор ---- */
-.spread-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; margin: 18px 0; }
-.spread-pick {
-  text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
-  padding: 14px; display: grid; gap: 8px; transition: border-color .2s, transform .2s;
-}
+/* ---- шаг 1: выбор ---- */
+.spread-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 12px 0; }
+.spread-pick { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; display: grid; gap: 6px; align-content: start; position: relative; transition: border-color .2s, transform .2s; }
 .spread-pick:hover { transform: translateY(-2px); }
 .spread-pick[aria-pressed="true"] { border-color: var(--accent); background: var(--surface-2); }
-.spread-pick .mini { display: flex; gap: 4px; height: 34px; align-items: center; }
-.spread-pick .mini i { display: block; width: 22px; height: 33px; border-radius: 3px; border: 1px solid var(--accent); opacity: .85; }
-.spread-pick .mini i.x { transform: rotate(90deg) scale(.9); margin-left: -26px; }
-.spread-pick b { font-family: var(--display); font-weight: 400; font-size: 20px; }
-.spread-pick span { color: var(--muted); font-size: 14px; }
-.setup { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: end; }
-@media (max-width: 640px) { .setup { grid-template-columns: 1fr; } }
-.setup-row { display: flex; gap: 22px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.spread-pick.locked { opacity: .62; }
+.spread-pick .mini { display: flex; gap: 4px; height: 30px; align-items: center; }
+.spread-pick .mini i { display: block; width: 19px; height: 28px; border-radius: 3px; border: 1px solid var(--accent); opacity: .85; }
+.spread-pick .mini i.x { transform: rotate(90deg) scale(.9); margin-left: -22px; }
+.spread-pick b { font-family: var(--display); font-weight: 400; font-size: 19px; line-height: 1.15; }
+.spread-pick span.d { color: var(--muted); font-size: 13px; line-height: 1.35; }
+.spread-pick .lock { position: absolute; right: 10px; top: 10px; }
+.setup { display: grid; grid-template-columns: 1fr auto; gap: 12px 16px; align-items: end; }
+.setup .row2 { grid-column: 1 / -1; display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+@media (max-width: 640px) { .setup { grid-template-columns: 1fr; } .spread-list { grid-template-columns: 1fr 1fr; } .spread-pick span.d { display: none; } }
 
-/* ---- стол ---- */
-.table-wrap { margin: 26px 0 10px; display: grid; justify-items: center; }
-.question-echo { text-align: center; font-family: var(--display); font-size: 22px; color: var(--accent); margin: 0 0 14px; max-width: 40ch; }
-.board { position: relative; }
+/* ---- шаг 2: стол ---- */
+.qecho { text-align: center; font-family: var(--display); font-size: 20px; color: var(--accent); margin: 0 auto 4px; max-width: 46ch; flex: none; }
+#boardArea { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+.board { position: relative; flex: none; }
 .slot { position: absolute; }
 .slot.cross { z-index: 3; transform: rotate(90deg); }
 .card { width: var(--cw); height: calc(var(--cw) * 1.5); perspective: 900px; cursor: pointer; animation: deal .6s cubic-bezier(.2, .8, .2, 1) both; animation-delay: var(--d, 0ms); background: none; border: 0; padding: 0; display: block; }
@@ -134,204 +128,231 @@ input[type=text], input[type=password], input[type=search], textarea, select {
 .face.front { transform: rotateY(180deg); }
 .face.front img.rev { transform: rotate(180deg); }
 .card:not(.flipped):hover .face.back { box-shadow: 0 0 0 2px var(--accent), 0 8px 26px #000a; }
-.badge { position: absolute; left: 6px; top: 6px; z-index: 4; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--bg); color: var(--accent); border: 1px solid var(--accent); font: 600 12px/20px var(--body); text-align: center; pointer-events: none; }
+.badge { position: absolute; left: 5px; top: 5px; z-index: 4; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: var(--bg); color: var(--accent); border: 1px solid var(--accent); font: 600 11px/18px var(--body); text-align: center; pointer-events: none; }
 .slot.cross .badge { transform: rotate(-90deg); }
-.cap { position: absolute; left: 50%; top: 100%; transform: translateX(-50%); margin-top: 8px; width: calc(var(--cw) * 1.3); text-align: center; font-size: 13px; color: var(--muted); }
-.actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 18px 0; }
-.hint { text-align: center; color: var(--muted); font-size: 14px; margin: 0; }
-.verdict { text-align: center; margin: 12px 0 0; }
-.verdict b { display: block; font-family: var(--display); font-weight: 400; font-size: clamp(54px, 12vw, 96px); line-height: 1; color: var(--accent); }
+.cap { position: absolute; left: 50%; top: 100%; transform: translateX(-50%); margin-top: 6px; width: calc(var(--cw) * 1.3); text-align: center; font-size: 13px; color: var(--muted); }
+.verdict { text-align: center; flex: none; }
+.verdict b { display: block; font-family: var(--display); font-weight: 400; font-size: 54px; line-height: 1; color: var(--accent); }
 .verdict.no b { color: var(--warn); }
+.dock { flex: none; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 6px 0 2px; flex-wrap: wrap; min-height: 44px; }
+.saved { font-size: 13px; color: var(--good); }
 
-/* ---- результат ---- */
-.result { display: grid; gap: 22px; margin-top: 18px; grid-template-columns: 1.4fr 1fr; align-items: start; }
+/* ---- шаг 3: разбор ---- */
+.result { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; align-items: start; }
 @media (max-width: 860px) { .result { grid-template-columns: 1fr; } }
-.rows { display: grid; gap: 10px; }
-.row { display: grid; grid-template-columns: 54px 1fr auto; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; }
-.row img { width: 54px; height: 81px; border-radius: 6px; object-fit: cover; display: block; }
+.rows { display: grid; gap: 9px; }
+.row { display: grid; grid-template-columns: 50px 1fr auto; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 9px 12px; }
+.row img { width: 50px; height: 75px; border-radius: 6px; object-fit: cover; display: block; }
 .row img.rev { transform: rotate(180deg); }
-.row .pos { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
-.row .nm { font-family: var(--display); font-size: 21px; line-height: 1.2; }
-.row .tx { color: var(--muted); font-size: 14px; margin-top: 3px; }
-.row.locked { opacity: .55; }
-.paywall { position: relative; overflow: hidden; }
-.paywall .blur { filter: blur(5px); user-select: none; color: var(--muted); display: grid; gap: 8px; margin: 12px 0; }
-.paywall .blur i { display: block; height: 10px; border-radius: 5px; background: var(--line); }
-.tag { display: inline-block; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 2px 10px; }
+.row .pos { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.row .nm { font-family: var(--display); font-size: 20px; line-height: 1.2; }
+.row .tx { color: var(--muted); font-size: 14px; margin-top: 2px; }
+.ai-box { display: grid; gap: 10px; }
+.ai-text { background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 15px; display: grid; gap: 8px; }
+.ai-text p { margin: 0; }
+.ai-text .demo { color: var(--warn); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+.blur { filter: blur(5px); user-select: none; display: grid; gap: 8px; margin: 4px 0; }
+.blur i { display: block; height: 10px; border-radius: 5px; background: var(--line); }
 
-/* ---- энциклопедия ---- */
-.filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; align-items: center; }
-.filters button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 7px 15px; color: var(--muted); }
+/* ---- списки: история, значения ---- */
+.hist { display: grid; gap: 9px; margin-top: 10px; }
+.hist-item { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; }
+.thumbs { display: flex; }
+.thumbs img { width: 32px; height: 48px; border-radius: 4px; object-fit: cover; margin-left: -10px; border: 1px solid var(--bg); }
+.thumbs img:first-child { margin-left: 0; } .thumbs img.rev { transform: rotate(180deg); }
+.hist-item .meta b { font-family: var(--display); font-weight: 400; font-size: 19px; }
+.hist-item .meta div { color: var(--muted); font-size: 13px; }
+.hist-actions { display: flex; gap: 6px; align-items: center; }
+.icon-btn { border: 1px solid var(--line); background: none; width: 34px; height: 34px; border-radius: 50%; color: var(--muted); }
+.icon-btn[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; align-items: center; }
+.filters button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 14px; color: var(--muted); }
 .filters button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
 .filters input { max-width: 240px; margin-left: auto; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 14px; }
-.tile { background: none; border: 0; padding: 0; text-align: center; display: grid; gap: 8px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); gap: 12px; }
+.tile { background: none; border: 0; padding: 0; text-align: center; display: grid; gap: 6px; }
 .tile img { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: 8px; box-shadow: 0 6px 20px #0008; transition: transform .2s, box-shadow .2s; }
 .tile:hover img { transform: translateY(-3px); box-shadow: 0 0 0 2px var(--accent), 0 10px 24px #000a; }
-.tile span { font-size: 14px; color: var(--muted); }
-.empty { color: var(--muted); text-align: center; padding: 32px 0; }
+.tile span { font-size: 13px; color: var(--muted); }
+.empty { color: var(--muted); text-align: center; padding: 28px 0; }
 
-/* ---- история / кабинет ---- */
-.hist { display: grid; gap: 10px; margin-top: 16px; }
-.hist-item { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
-.hist-item .thumbs { display: flex; }
-.hist-item .thumbs img { width: 34px; height: 51px; border-radius: 4px; object-fit: cover; margin-left: -10px; border: 1px solid var(--bg); }
-.hist-item .thumbs img:first-child { margin-left: 0; }
-.hist-item .thumbs img.rev { transform: rotate(180deg); }
-.hist-item .meta b { font-family: var(--display); font-weight: 400; font-size: 20px; }
-.hist-item .meta div { color: var(--muted); font-size: 14px; }
-.hist-actions { display: flex; gap: 6px; }
-.icon-btn { border: 1px solid var(--line); background: none; width: 36px; height: 36px; border-radius: 50%; color: var(--muted); }
-.icon-btn[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
-.cabinet { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 18px; }
-@media (max-width: 760px) { .cabinet { grid-template-columns: 1fr; } }
-.cabinet .panel { display: grid; gap: 14px; align-content: start; }
-.cabinet h3 { font-size: 22px; }
-.plans { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.plan { border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: grid; gap: 4px; background: var(--bg-2); }
-.plan b { font-family: var(--display); font-weight: 400; font-size: 20px; }
-.plan.best { border-color: var(--accent); }
-.mock { font-size: 12px; color: var(--warn); letter-spacing: .06em; text-transform: uppercase; }
+/* ---- подписка, профиль ---- */
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 999px; padding: 3px; margin: 8px 0; }
+.seg button { border: 0; background: none; padding: 6px 14px; border-radius: 999px; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.matrix-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+table.matrix { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+.matrix th, .matrix td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: center; }
+.matrix th:first-child, .matrix td:first-child { text-align: left; }
+.matrix thead th { color: var(--muted); font-weight: 500; background: var(--surface); position: sticky; top: 0; }
+.matrix tr.grp td { background: var(--bg-2); color: var(--accent); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; text-align: left; }
+.matrix tr.cur td, .matrix th.cur { background: var(--accent-soft); }
+.matrix input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); }
+.matrix input[type=number] { width: 70px; padding: 5px 7px; text-align: center; }
+.cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .cols2 { grid-template-columns: 1fr; } }
+.panel.stack { display: grid; gap: 12px; align-content: start; }
+.panel h3 { font-size: 21px; }
+.accents { display: flex; gap: 10px; }
+.accents button { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--line); padding: 0; }
+.accents button[aria-pressed="true"] { border-color: var(--fg); }
+.dot-gold { background: #dcb468; } .dot-amethyst { background: #b793ff; } .dot-azure { background: #6fd6d2; }
 
-/* ---- карточка карты ---- */
+/* ---- карточка карты, окна ---- */
 .overlay { position: fixed; inset: 0; z-index: 50; background: #04030cd9; display: grid; place-items: center; padding: 16px; overflow-y: auto; }
-.sheet { background: var(--bg-2); border: 1px solid var(--line); border-radius: 18px; width: min(880px, 100%); margin: auto; padding: 22px; position: relative; display: grid; grid-template-columns: 250px 1fr; gap: 24px; }
-@media (max-width: 720px) { .sheet { grid-template-columns: 1fr; } .sheet .pic { max-width: 220px; margin: 0 auto; } }
+.sheet { background: var(--bg-2); border: 1px solid var(--line); border-radius: 18px; width: min(880px, 100%); margin: auto; padding: 22px; position: relative; display: grid; grid-template-columns: 240px 1fr; gap: 22px; }
+.sheet.narrow { grid-template-columns: 1fr; width: min(460px, 100%); gap: 12px; }
+.sheet.narrow .tag { justify-self: start; margin-right: 44px; }
+@media (max-width: 720px) { .sheet { grid-template-columns: 1fr; } .sheet .pic { max-width: 200px; margin: 0 auto; } }
 .sheet .pic img { width: 100%; border-radius: 10px; display: block; box-shadow: 0 10px 34px #000b; }
 .sheet .pic img.rev { transform: rotate(180deg); }
-.sheet h2 { font-size: clamp(30px, 5vw, 42px); line-height: 1.1; }
+.sheet h2 { font-size: clamp(28px, 5vw, 40px); line-height: 1.1; }
 .sheet .close { position: absolute; right: 12px; top: 12px; }
-.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; margin: 10px 0; }
-.seg button { border: 0; background: none; padding: 6px 16px; border-radius: 999px; color: var(--muted); }
-.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
-.kw { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 14px; }
-.block { margin-top: 14px; }
-.block h4 { margin: 0 0 4px; font: 600 12px/1.4 var(--body); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.kw { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 12px; }
+.block { margin-top: 12px; }
+.block h4 { margin: 0 0 3px; font: 600 12px/1.4 var(--body); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
 .block p { margin: 0; max-width: 62ch; }
+.block.locked p { color: var(--muted); }
 .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 18px; border-radius: 999px; z-index: 80; font-size: 14px; max-width: 90vw; }
-.foot { margin-top: 36px; color: var(--muted); font-size: 13px; text-align: center; }
-@media (prefers-reduced-motion: reduce) { .card, .card .inner { animation: none; transition: none; } .btn { transition: none; } }
+
+@media (max-width: 640px) {
+  .brand small { display: none; }
+  header.top { padding-top: 6px; }
+  nav.tabs { order: 3; width: 100%; overflow-x: auto; scrollbar-width: none; }
+  nav.tabs button { flex: 1 0 auto; padding: 7px 11px; font-size: 14px; }
+  .uname { display: none; }
+  .user { padding-right: 6px; }
+  .bar-title b { font-size: 18px; }
+  .hist-item { grid-template-columns: 1fr auto; } .hist-item .thumbs { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .card, .card .inner, .screen { animation: none; transition: none; } }
 </style>
 
 <div class="sky" aria-hidden="true"></div>
-<div class="wrap">
+<div class="app">
   <header class="top">
     <div class="brand">Таро <small>Космический мистицизм</small></div>
-    <nav class="tabs" role="tablist" aria-label="Разделы">
-      <button role="tab" id="tab-spreads" aria-selected="true" data-tab="spreads">Расклады</button>
-      <button role="tab" id="tab-lib" aria-selected="false" data-tab="lib">Значения</button>
-      <button role="tab" id="tab-hist" aria-selected="false" data-tab="hist">История</button>
-      <button role="tab" id="tab-me" aria-selected="false" data-tab="me">Кабинет</button>
+    <button class="user" id="userChip" aria-label="Мой тариф"><span class="ava">В</span><span class="uname">Владимир</span><span class="plan" id="planChip"></span></button>
+    <nav class="tabs" role="tablist" aria-label="Разделы кабинета">
+      <button role="tab" data-tab="spreads" aria-selected="true">Расклады</button>
+      <button role="tab" data-tab="hist" aria-selected="false">Мои расклады</button>
+      <button role="tab" data-tab="lib" aria-selected="false">Значения</button>
+      <button role="tab" data-tab="sub" aria-selected="false">Подписка</button>
+      <button role="tab" data-tab="set" aria-selected="false">Профиль</button>
     </nav>
-    <div class="accents" role="group" aria-label="Цвет оформления">
-      <button class="dot-gold" data-accent="gold" aria-label="Золото" aria-pressed="true"></button>
-      <button class="dot-amethyst" data-accent="amethyst" aria-label="Аметист" aria-pressed="false"></button>
-      <button class="dot-azure" data-accent="azure" aria-label="Лазурь" aria-pressed="false"></button>
-    </div>
   </header>
 
-  <!-- РАСКЛАДЫ -->
-  <main id="view-spreads">
-    <h1 class="section-title">Выберите расклад</h1>
-    <p class="lead">Сосредоточьтесь на вопросе, перетасуйте колоду и вытяните карты. Все 78 карт авторской колоды, прямое и перевёрнутое положение.</p>
-    <div class="spread-list" id="spreadList"></div>
-    <div class="panel setup">
-      <label class="field" for="question">Ваш вопрос (необязательно)
-        <input type="text" id="question" maxlength="140" placeholder="Например: что мне важно понять про новую работу?">
-      </label>
-      <button class="btn" id="draw">Перетасовать и вытянуть</button>
-      <div class="setup-row" style="grid-column: 1 / -1; margin-top: 0">
-        <label class="switch" for="useRev"><input type="checkbox" id="useRev" checked> Перевёрнутые карты</label>
-        <span class="hint" id="spreadNote"></span>
-      </div>
-    </div>
-    <section id="stage" hidden aria-live="polite">
-      <div class="table-wrap">
-        <p class="question-echo" id="qEcho" hidden></p>
-        <div id="boardBox" style="width:100%; display:grid; justify-items:center"><div class="board" id="board"></div></div>
-        <div class="verdict" id="verdict" hidden></div>
-      </div>
-      <p class="hint" id="flipHint">Нажмите на карту, чтобы перевернуть её</p>
-      <div class="actions">
-        <button class="btn ghost" id="openAll">Открыть все карты</button>
-        <button class="btn ghost" id="again">Новый расклад</button>
-        <button class="btn" id="save" disabled>Сохранить в историю</button>
-      </div>
-      <div class="result" id="result" hidden>
-        <div>
-          <h2 style="font-size:26px; margin-bottom:10px">Карты расклада</h2>
-          <div class="rows" id="rows"></div>
+  <div class="stage" id="stage">
+    <!-- Шаг 1: выбор -->
+    <section class="screen on" id="sc-pick">
+      <div class="pane">
+        <h1 class="title">Выберите расклад</h1>
+        <p class="lead">Сосредоточьтесь на вопросе и вытяните карты. Каждый расклад сразу сохраняется в «Мои расклады».</p>
+        <div class="spread-list" id="spreadList"></div>
+        <div class="panel setup">
+          <label class="field" for="question">Ваш вопрос (необязательно)
+            <input type="text" id="question" maxlength="140" placeholder="Например: что мне важно понять про новую работу?">
+          </label>
+          <button class="btn" id="draw">Вытянуть карты</button>
+          <div class="row2">
+            <label class="switch" for="useRev"><input type="checkbox" id="useRev" checked> Перевёрнутые карты</label>
+            <span class="lock" id="revLock" hidden></span>
+            <span class="hint" id="spreadNote"></span>
+          </div>
         </div>
-        <aside class="panel paywall">
-          <span class="tag">По подписке</span>
-          <h3 style="font-size:24px; margin-top:10px">Толкование расклада от ИИ</h3>
-          <p class="lead" style="margin-top:6px; font-size:15px">Связный разбор всех позиций вместе, с учётом вашего вопроса и совет в конце.</p>
-          <div class="blur" aria-hidden="true"><i style="width:96%"></i><i style="width:88%"></i><i style="width:92%"></i><i style="width:60%"></i><i style="width:90%"></i><i style="width:74%"></i></div>
-          <button class="btn" id="ai">Получить толкование</button>
-          <p class="hint" style="text-align:left; margin-top:10px">Без подписки вы видите краткое толкование каждой карты слева.</p>
-        </aside>
       </div>
     </section>
-  </main>
 
-  <!-- ЗНАЧЕНИЯ КАРТ -->
-  <main id="view-lib" hidden>
-    <h1 class="section-title">Значения карт</h1>
-    <p class="lead">Все 78 карт: суть, психология и практические советы для прямого и перевёрнутого положения.</p>
-    <div class="filters" id="filters"></div>
-    <div class="grid" id="libGrid"></div>
-    <p class="empty" id="libEmpty" hidden>Ничего не найдено. Попробуйте другое слово.</p>
-  </main>
-
-  <!-- ИСТОРИЯ -->
-  <main id="view-hist" hidden>
-    <h1 class="section-title">История раскладов</h1>
-    <p class="lead">Сохранённые расклады лежат здесь. В прототипе они хранятся только в этом браузере.</p>
-    <div class="hist" id="histList"></div>
-    <p class="empty" id="histEmpty" hidden>Пока пусто. Вытяните расклад и нажмите «Сохранить в историю».</p>
-  </main>
-
-  <!-- КАБИНЕТ (макет) -->
-  <main id="view-me" hidden>
-    <h1 class="section-title">Личный кабинет</h1>
-    <p class="lead">Макет внешнего вида. Вход, подписка и Telegram пока не работают.</p>
-    <div class="cabinet">
-      <form class="panel" id="loginForm" onsubmit="return false">
-        <span class="mock">Макет</span>
-        <h3>Вход</h3>
-        <label class="field" for="lg">Логин<input type="text" id="lg" autocomplete="username" placeholder="Не меньше 3 символов"></label>
-        <label class="field" for="pw">Пароль<input type="password" id="pw" autocomplete="current-password" placeholder="Не меньше 8 символов"></label>
-        <div style="display:flex; gap:10px; flex-wrap:wrap">
-          <button class="btn" type="button" data-mock="Вход подключим на этапе с базой">Войти</button>
-          <button class="btn ghost" type="button" data-mock="Регистрацию подключим на этапе с базой">Создать аккаунт</button>
-        </div>
-      </form>
-      <div class="panel">
-        <span class="mock">Макет</span>
-        <h3>Настройки</h3>
-        <label class="field" for="lang">Язык
-          <select id="lang"><option>Русский</option><option disabled>English (скоро)</option><option disabled>Español (скоро)</option></select>
-        </label>
-        <label class="field" for="tz">Часовой пояс<select id="tz"><option>Москва, UTC+3</option><option>Лондон, UTC+0</option><option>Нью-Йорк, UTC−5</option></select></label>
-        <label class="field" for="dt">Время карты дня<select id="dt"><option>08:00</option><option>09:00</option><option>12:00</option></select></label>
-        <label class="switch" for="useRev2"><input type="checkbox" id="useRev2" checked> Перевёрнутые карты</label>
-        <button class="btn ghost" type="button" data-mock="Привязка Telegram придёт вместе с ботом">Привязать Telegram</button>
+    <!-- Шаг 2: стол -->
+    <section class="screen" id="sc-table">
+      <div class="bar">
+        <button class="btn ghost small" id="exit1">← Выход</button>
+        <div class="bar-title"><b id="tTitle"></b><span>Стол<span class="dots"><i></i><i class="on"></i><i></i></span></span></div>
+        <button class="btn small" id="toResult" disabled>Разбор →</button>
       </div>
-      <div class="panel" style="grid-column: 1 / -1">
-        <span class="mock">Макет</span>
-        <h3>Подписка</h3>
-        <div class="plans">
-          <div class="plan"><b>Бесплатно</b><span>Карта дня, базовые расклады с краткими толкованиями, значения всех карт. 5 толкований от ИИ в сутки.</span></div>
-          <div class="plan best"><b>Подписка</b><span>Толкования от ИИ без очереди, кельтский крест и другие большие расклады, до 50 толкований в сутки.</span><button class="btn small" data-mock="Оплату подключим после запуска сайта" style="justify-self:start; margin-top:8px">Оформить</button></div>
+      <p class="qecho" id="qEcho" hidden></p>
+      <div id="boardArea"><div class="board" id="board"></div><div class="verdict" id="verdict" hidden></div></div>
+      <div class="dock">
+        <span class="hint" id="flipHint">Нажмите на карту, чтобы перевернуть её</span>
+        <button class="btn ghost small" id="openAll">Открыть все карты</button>
+        <span class="saved" id="savedMark">✓ Сохранено в «Мои расклады»</span>
+      </div>
+    </section>
+
+    <!-- Шаг 3: разбор -->
+    <section class="screen" id="sc-result">
+      <div class="bar">
+        <button class="btn ghost small" id="toTable">← К столу</button>
+        <div class="bar-title"><b id="rTitle"></b><span>Разбор<span class="dots"><i></i><i></i><i class="on"></i></span></span></div>
+        <button class="btn small" id="exit2">Выход</button>
+      </div>
+      <div class="pane">
+        <div class="verdict" id="verdict2" hidden style="margin-bottom:10px"></div>
+        <div class="result">
+          <div><div class="rows" id="rows"></div></div>
+          <aside class="panel ai-box" id="aiBox"></aside>
         </div>
       </div>
-    </div>
-  </main>
+    </section>
 
-  <p class="foot">Прототип внешнего вида. Данные: 78 карт, толкования на русском. ИИ-толкование, вход и оплата пока не подключены.</p>
+    <!-- Мои расклады -->
+    <section class="screen" id="sc-hist"><div class="pane">
+      <h1 class="title">Мои расклады</h1>
+      <p class="lead">Всё, что вам выпало, лежит здесь. В прототипе данные хранятся только в этом браузере.</p>
+      <div class="hist" id="histList"></div>
+      <p class="empty" id="histEmpty" hidden>Пока пусто. Вытяните первый расклад, он появится здесь сам.</p>
+      <p class="hint" id="histNote" style="margin-top:12px"></p>
+    </div></section>
+
+    <!-- Значения -->
+    <section class="screen" id="sc-lib"><div class="pane">
+      <h1 class="title">Значения карт</h1>
+      <p class="lead">Все 78 карт, прямое и перевёрнутое положение.</p>
+      <div class="filters" id="filters"></div>
+      <div class="grid" id="libGrid"></div>
+      <p class="empty" id="libEmpty" hidden>Ничего не найдено. Попробуйте другое слово.</p>
+    </div></section>
+
+    <!-- Подписка и тарифы -->
+    <section class="screen" id="sc-sub"><div class="pane">
+      <h1 class="title">Подписка</h1>
+      <p class="lead">Тестовый режим. Выберите тариф, чтобы посмотреть, как выглядит кабинет с ограничениями, или отметьте галочками, что входит в каждый тариф. Выбор запоминается в этом браузере.</p>
+      <div class="seg" id="planSeg" role="group" aria-label="Тариф для проверки"></div>
+      <p class="hint" id="planNote" style="text-align:left; margin-bottom:10px"></p>
+      <div class="matrix-wrap"><table class="matrix" id="matrix"></table></div>
+      <p style="margin-top:12px"><button class="btn ghost small" id="resetPlans">Вернуть начальные тарифы</button></p>
+    </div></section>
+
+    <!-- Профиль -->
+    <section class="screen" id="sc-set"><div class="pane">
+      <h1 class="title">Профиль</h1>
+      <p class="lead">Макет настроек. Вход и пароль будут на этапе с базой данных.</p>
+      <div class="cols2" style="margin-top:12px">
+        <div class="panel stack">
+          <h3>Настройки</h3>
+          <label class="field" for="lang">Язык<select id="lang"><option>Русский</option><option disabled>English (скоро)</option><option disabled>Español (скоро)</option></select></label>
+          <label class="field" for="tz">Часовой пояс<select id="tz"><option>Москва, UTC+3</option><option>Лондон, UTC+0</option><option>Нью-Йорк, UTC−5</option></select></label>
+          <label class="field" for="dt">Время карты дня<select id="dt"><option>08:00</option><option>09:00</option><option>12:00</option></select></label>
+          <label class="switch" for="useRev2"><input type="checkbox" id="useRev2" checked> Перевёрнутые карты</label>
+        </div>
+        <div class="panel stack">
+          <h3>Уведомления</h3>
+          <p class="lead" style="margin:0">Telegram-бот напомнит, что расклад готов, и позовёт вернуться в кабинет.</p>
+          <button class="btn ghost" id="tgBtn" style="justify-self:start">Привязать Telegram</button>
+          <h3 style="margin-top:6px">Цвет оформления</h3>
+          <div class="accents" role="group" aria-label="Цвет оформления">
+            <button class="dot-gold" data-accent="gold" aria-label="Золото" aria-pressed="true"></button>
+            <button class="dot-amethyst" data-accent="amethyst" aria-label="Аметист" aria-pressed="false"></button>
+            <button class="dot-azure" data-accent="azure" aria-label="Лазурь" aria-pressed="false"></button>
+          </div>
+          <button class="btn ghost small" id="logout" style="justify-self:start; margin-top:6px">Выйти из аккаунта</button>
+        </div>
+      </div>
+    </div></section>
+  </div>
 </div>
 
-<div class="overlay" id="overlay" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"></div></div>
+<div class="overlay" id="overlay" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
 <div class="toast" id="toast" hidden></div>
 
 <script>
@@ -345,43 +366,108 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* без хранилища работаем в памяти */ } }
 };
+let toastT;
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2600); }
 
-/* ---------- расклады (по ТЗ 3.2 и Приложению A) ---------- */
+/* ================= тарифы и доступ ================= */
+// Здесь описано, что можно закрывать по подписке. Сейчас тариф «all» открывает всё.
+const FEATURES = [
+  { id: "spread.day", label: "Расклад «Карта дня»", group: "Расклады" },
+  { id: "spread.yesno", label: "Расклад «Да или нет»", group: "Расклады" },
+  { id: "spread.three", label: "Расклад «Три карты»", group: "Расклады" },
+  { id: "spread.cross", label: "Расклад «Малый крест»", group: "Расклады" },
+  { id: "spread.celtic", label: "Расклад «Кельтский крест»", group: "Расклады" },
+  { id: "question", label: "Вопрос к раскладу", group: "Возможности" },
+  { id: "reversed", label: "Перевёрнутые карты", group: "Возможности" },
+  { id: "notify", label: "Уведомления в Telegram", group: "Возможности" },
+  { id: "ai", label: "ИИ-толкование расклада", group: "ИИ и толкования" },
+  { id: "ai.limit", label: "ИИ-толкований в сутки", group: "ИИ и толкования", num: true },
+  { id: "lib.psy", label: "Значения: психология", group: "ИИ и толкования" },
+  { id: "lib.practice", label: "Значения: работа, отношения, состояние", group: "ИИ и толкования" },
+  { id: "history.limit", label: "Раскладов в «Мои расклады» (пусто = без ограничения)", group: "Хранение", num: true }
+];
+const PLAN_ORDER = ["free", "lite", "standard", "pro"];
+const PLAN_NAMES = { all: "Всё открыто (тест)", free: "Бесплатный", lite: "Лайт", standard: "Стандарт", pro: "Про" };
+const B = (on) => Object.fromEntries(FEATURES.filter(f => !f.num).map(f => [f.id, on.includes(f.id)]));
+const DEFAULT_MATRIX = {
+  free: { ...B(["spread.day", "spread.yesno", "spread.three", "question", "reversed"]), "ai.limit": 0, "history.limit": 5 },
+  lite: { ...B(["spread.day", "spread.yesno", "spread.three", "spread.cross", "question", "reversed", "ai", "lib.psy"]), "ai.limit": 5, "history.limit": 30 },
+  standard: { ...B(["spread.day", "spread.yesno", "spread.three", "spread.cross", "spread.celtic", "question", "reversed", "notify", "ai", "lib.psy", "lib.practice"]), "ai.limit": 20, "history.limit": "" },
+  pro: { ...B(FEATURES.filter(f => !f.num).map(f => f.id)), "ai.limit": 50, "history.limit": "" }
+};
+const clone = o => JSON.parse(JSON.stringify(o));
+const TAR = (() => {
+  const saved = store.get("tarot_tariff_v1", null);
+  const t = { current: "all", matrix: clone(DEFAULT_MATRIX) };
+  if (saved) { t.current = PLAN_NAMES[saved.current] ? saved.current : "all"; for (const p of PLAN_ORDER) Object.assign(t.matrix[p], (saved.matrix || {})[p] || {}); }
+  return t;
+})();
+const saveTar = () => store.set("tarot_tariff_v1", TAR);
+const can = id => TAR.current === "all" || !!TAR.matrix[TAR.current][id];
+function limit(id) { if (TAR.current === "all") return Infinity; const v = TAR.matrix[TAR.current][id]; return v === "" || v == null ? Infinity : Number(v); }
+function minPlan(id) { return PLAN_ORDER.find(p => TAR.matrix[p][id]) || "pro"; }
+function openUpsell(id, what) {
+  const p = minPlan(id), sh = $("#sheet");
+  sh.className = "sheet narrow";
+  sh.innerHTML = `<button class="icon-btn close" aria-label="Закрыть">✕</button>
+    <span class="tag">По подписке</span><h2 style="font-size:28px">${esc(what)}</h2>
+    <p class="lead">Эта возможность входит в тариф «${PLAN_NAMES[p]}» и выше. Сейчас у вас «${PLAN_NAMES[TAR.current]}».</p>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:6px">
+      <button class="btn" id="goPlans">Посмотреть тарифы</button>
+      <button class="btn ghost" id="tryPlan">Включить «${PLAN_NAMES[p]}» (тест)</button>
+    </div>`;
+  $(".close", sh).addEventListener("click", closeSheet);
+  $("#goPlans").addEventListener("click", () => { closeSheet(); goTab("sub"); });
+  $("#tryPlan").addEventListener("click", () => { setPlan(p); closeSheet(); toast("Тариф «" + PLAN_NAMES[p] + "» включён для проверки"); });
+  openOverlay();
+}
+function setPlan(p) { TAR.current = p; saveTar(); refreshPlan(); }
+function refreshPlan() {
+  $("#planChip").textContent = PLAN_NAMES[TAR.current];
+  renderSpreadList(); updateSetup(); renderPlans(); renderHistory(); renderLib();
+  $("#tgBtn").innerHTML = can("notify") ? "Привязать Telegram" : "Привязать Telegram <span class='lock'>🔒 по подписке</span>";
+  if (S.screen === "result") renderResult();
+}
+
+/* ================= расклады (ТЗ 3.2, Приложение A) ================= */
 const P = (x, y, name, cross) => ({ x, y, name, cross: !!cross });
 const SPREADS = [
-  { id: "day", name: "Карта дня", sub: "1 карта", desc: "Тема дня. Одна и та же карта до полуночи.", W: 1, H: 1.5, max: 190, caption: true, mini: [0], daily: true,
-    pos: [P(0, 0, "Тема дня")] },
-  { id: "yesno", name: "Да или нет", sub: "1 карта", desc: "Прямая карта означает «да», перевёрнутая «нет».", W: 1, H: 1.5, max: 190, caption: true, mini: [0], yesno: true,
-    pos: [P(0, 0, "Ответ")] },
-  { id: "three", name: "Три карты", sub: "3 карты", desc: "Прошлое, настоящее, будущее.", W: 3.3, H: 1.5, max: 150, caption: true, mini: [0, 1, 2],
-    pos: [P(0, 0, "Прошлое"), P(1.15, 0, "Настоящее"), P(2.3, 0, "Будущее")] },
-  { id: "cross", name: "Малый крест", sub: "5 карт", desc: "Что происходит, что мешает, откуда это растёт и куда ведёт.", W: 3.7, H: 3.1, max: 130, caption: false, mini: [0, 1, 2, "x"],
+  { id: "day", name: "Карта дня", sub: "1 карта", desc: "Тема дня. Одна и та же карта до полуночи.", W: 1, H: 1.5, max: 220, caption: true, mini: [0], daily: true, pos: [P(0, 0, "Тема дня")] },
+  { id: "yesno", name: "Да или нет", sub: "1 карта", desc: "Прямая карта означает «да», перевёрнутая «нет».", W: 1, H: 1.5, max: 220, caption: true, mini: [0], yesno: true, pos: [P(0, 0, "Ответ")] },
+  { id: "three", name: "Три карты", sub: "3 карты", desc: "Прошлое, настоящее, будущее.", W: 3.3, H: 1.5, max: 170, caption: true, mini: [0, 1, 2], pos: [P(0, 0, "Прошлое"), P(1.15, 0, "Настоящее"), P(2.3, 0, "Будущее")] },
+  { id: "cross", name: "Малый крест", sub: "5 карт", desc: "Что происходит, что мешает, откуда растёт и куда ведёт.", W: 3.7, H: 3.1, max: 140, caption: false, mini: [0, 1, 2, "x"],
     pos: [P(1.35, 0, "Ситуация"), P(1.35, 0, "Препятствие", true), P(1.35, 1.6, "Корень"), P(0, 0, "Уходящее"), P(2.7, 0, "Направление")] },
-  { id: "celtic", name: "Кельтский крест", sub: "10 карт", desc: "Глубокий разбор сложной ситуации.", W: 5.1, H: 6.3, max: 118, caption: false, mini: [0, 1, 2, "x", 3],
+  { id: "celtic", name: "Кельтский крест", sub: "10 карт", desc: "Глубокий разбор сложной ситуации.", W: 5.1, H: 6.3, max: 130, caption: false, mini: [0, 1, 2, "x", 3],
     pos: [P(1.35, 1.6, "Сердце вопроса: настоящее"), P(1.35, 1.6, "Что пересекает: вызов", true), P(1.35, 3.2, "Основание, корень"),
       P(0, 1.6, "Недавнее прошлое"), P(1.35, 0, "Венец: цель, лучший исход"), P(2.7, 1.6, "Ближайшее будущее"),
       P(4.1, 4.8, "Вы сами"), P(4.1, 3.2, "Окружение, другие люди"), P(4.1, 1.6, "Надежды и страхи"), P(4.1, 0, "Вероятный итог")] }
 ];
+const SP = id => SPREADS.find(s => s.id === id);
 const SUITS = { major: "Старшие арканы", wands: "Жезлы", cups: "Кубки", swords: "Мечи", pentacles: "Пентакли" };
 
-/* ---------- состояние ---------- */
-const S = { tab: "spreads", spread: "three", reading: null, filter: "all", q: "" };
-let toastT;
-function toast(msg) {
-  const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2600);
+/* ================= состояние и экраны ================= */
+const S = { screen: "pick", spread: "three", reading: null, filter: "all", q: "" };
+const ORDER = ["pick", "table", "result"];
+function show(name) {
+  const from = ORDER.indexOf(S.screen), to = ORDER.indexOf(name);
+  $$(".screen").forEach(el => {
+    const on = el.id === "sc-" + name;
+    el.classList.toggle("on", on);
+    el.classList.toggle("back", !on && from >= 0 && to >= 0 && ORDER.indexOf(el.id.slice(3)) < to);
+  });
+  S.screen = name;
+  const tab = ORDER.includes(name) ? "spreads" : name;
+  $$("nav.tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === tab));
+  $$("#sc-" + name + " .pane").forEach(p => p.scrollTop = 0);
+  if (name === "table") requestAnimationFrame(fitBoard);
 }
-document.addEventListener("click", e => { const m = e.target.closest("[data-mock]"); if (m) toast(m.dataset.mock); });
-
-/* ---------- вкладки и оформление ---------- */
-function showTab(t) {
-  S.tab = t;
-  $$("nav.tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === t));
-  for (const v of ["spreads", "lib", "hist", "me"]) $("#view-" + v).hidden = v !== t;
-  window.scrollTo(0, 0);
+function goTab(t) {
+  if (t === "spreads") show("pick");
+  else show(t);
   if (t === "hist") renderHistory();
-  if (t === "spreads" && S.reading) fitBoard();
 }
-$$("nav.tabs button").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
+$$("nav.tabs button").forEach(b => b.addEventListener("click", () => goTab(b.dataset.tab)));
+$("#userChip").addEventListener("click", () => goTab("sub"));
 function setAccent(a) {
   if (a === "gold") document.documentElement.removeAttribute("data-accent"); else document.documentElement.setAttribute("data-accent", a);
   $$(".accents button").forEach(b => b.setAttribute("aria-pressed", b.dataset.accent === a));
@@ -390,66 +476,78 @@ function setAccent(a) {
 $$(".accents button").forEach(b => b.addEventListener("click", () => setAccent(b.dataset.accent)));
 setAccent(store.get("tarot_accent", "gold"));
 
-/* ---------- выбор расклада ---------- */
+/* ================= шаг 1: выбор ================= */
 function renderSpreadList() {
-  $("#spreadList").innerHTML = SPREADS.map(s => `
-    <button class="spread-pick" data-id="${s.id}" aria-pressed="${s.id === S.spread}">
+  $("#spreadList").innerHTML = SPREADS.map(s => {
+    const locked = !can("spread." + s.id);
+    return `<button class="spread-pick${locked ? " locked" : ""}" data-id="${s.id}" aria-pressed="${s.id === S.spread && !locked}">
       <div class="mini" aria-hidden="true">${s.mini.map(m => m === "x" ? '<i class="x"></i>' : "<i></i>").join("")}</div>
-      <b>${s.name}</b><span>${s.sub}. ${s.desc}</span>
-    </button>`).join("");
-  $$(".spread-pick").forEach(b => b.addEventListener("click", () => { S.spread = b.dataset.id; renderSpreadList(); updateNote(); }));
+      <b>${s.name}</b><span class="d">${s.sub}. ${s.desc}</span>${locked ? '<span class="lock">🔒 по подписке</span>' : ""}
+    </button>`;
+  }).join("");
+  $$(".spread-pick").forEach(b => b.addEventListener("click", () => {
+    const s = SP(b.dataset.id);
+    if (!can("spread." + s.id)) return openUpsell("spread." + s.id, "Расклад «" + s.name + "»");
+    S.spread = s.id; renderSpreadList(); updateSetup();
+  }));
 }
-function updateNote() {
-  const s = SPREADS.find(x => x.id === S.spread);
-  $("#spreadNote").textContent = s.yesno ? "Здесь карта всегда выпадает в случайном положении" : s.daily ? "Карта дня одна на весь день" : "";
+function updateSetup() {
+  const s = SP(S.spread), q = $("#question"), rev = $("#useRev");
+  if (!can("spread." + s.id)) S.spread = (SPREADS.find(x => can("spread." + x.id)) || SPREADS[0]).id;
+  $("#spreadNote").textContent = SP(S.spread).yesno ? "Здесь карта всегда выпадает в случайном положении" : SP(S.spread).daily ? "Карта дня одна на весь день" : "";
+  q.disabled = !can("question"); q.placeholder = can("question") ? "Например: что мне важно понять про новую работу?" : "Вопрос к раскладу доступен по подписке";
+  rev.disabled = !can("reversed");
+  if (!can("reversed")) rev.checked = false;
+  const l = $("#revLock"); l.hidden = can("reversed"); l.textContent = "🔒 по подписке";
+  $("#useRev2").disabled = !can("reversed"); $("#useRev2").checked = rev.checked;
 }
+$("#useRev").addEventListener("change", e => { $("#useRev2").checked = e.target.checked; });
+$("#useRev2").addEventListener("change", e => { $("#useRev").checked = e.target.checked; });
+$("#revLock").addEventListener("click", () => openUpsell("reversed", "Перевёрнутые карты"));
+$("#question").addEventListener("click", () => { if (!can("question")) openUpsell("question", "Вопрос к раскладу"); });
 
-/* ---------- случайность ---------- */
-function rnd(n) { // честный случайный индекс без смещения
-  const lim = Math.floor(0x100000000 / n) * n, a = new Uint32Array(1);
-  do { crypto.getRandomValues(a); } while (a[0] >= lim);
-  return a[0] % n;
-}
+/* ================= случайность ================= */
+function rnd(n) { const lim = Math.floor(0x100000000 / n) * n, a = new Uint32Array(1); do { crypto.getRandomValues(a); } while (a[0] >= lim); return a[0] % n; }
 function shuffle(arr) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
-function seeded(str) { // карта дня: одна и та же в течение суток
+function seeded(str) {
   let h = 1779033703 ^ str.length;
   for (let i = 0; i < str.length; i++) { h = Math.imul(h ^ str.charCodeAt(i), 3432918353); h = h << 13 | h >>> 19; }
   return () => { h = Math.imul(h ^ h >>> 16, 2246822507); h = Math.imul(h ^ h >>> 13, 3266489909); return ((h ^= h >>> 16) >>> 0) / 4294967296; };
 }
-function pickCards(spread, useRev) {
-  if (spread.daily) {
-    const d = new Date(), key = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`, r = seeded("day|" + key);
-    return [{ id: CARDS[Math.floor(r() * 78)].id, rev: useRev && r() < 0.5 }];
-  }
+const dayKey = () => { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
+function pickCards(sp, useRev) {
+  if (sp.daily) { const r = seeded("day|" + dayKey()); return [{ id: CARDS[Math.floor(r() * 78)].id, rev: useRev && r() < 0.5 }]; }
   const deck = shuffle(CARDS.map(c => c.id));
-  return spread.pos.map((_, i) => ({ id: deck[i], rev: spread.yesno ? rnd(2) === 1 : useRev && rnd(2) === 1 }));
+  return sp.pos.map((_, i) => ({ id: deck[i], rev: sp.yesno ? rnd(2) === 1 : useRev && rnd(2) === 1 }));
 }
 
-/* ---------- стол ---------- */
+/* ================= история (сохраняется сама) ================= */
+const HK = "tarot_history_v2";
+const getHist = () => store.get(HK, []);
+const setHist = h => store.set(HK, h.slice(0, 300));
+function visibleHist() { const h = getHist(), l = limit("history.limit"); return Number.isFinite(l) ? h.slice(0, l) : h; }
+
+/* ================= шаг 2: стол ================= */
 function fitBoard() {
   const r = S.reading; if (!r) return;
-  const sp = SPREADS.find(s => s.id === r.spread);
-  const avail = Math.max(240, $("#boardBox").clientWidth - 4);
-  const cw = Math.max(54, Math.min(sp.max, Math.floor(avail / sp.W)));
+  const sp = SP(r.spread), area = $("#boardArea"), v = $("#verdict");
+  const vh = v.hidden ? 0 : v.offsetHeight + 6, cap = sp.caption ? 34 : 0;
+  const w = area.clientWidth - 6, h = area.clientHeight - vh - cap - 6;
+  const cw = Math.max(44, Math.min(sp.max, Math.floor(w / sp.W), Math.floor(h / sp.H)));
   const b = $("#board");
-  b.style.setProperty("--cw", cw + "px");
-  b.style.width = cw * sp.W + "px";
-  b.style.height = cw * sp.H + (sp.caption ? 40 : 0) + "px";
+  b.style.setProperty("--cw", cw + "px"); b.style.width = cw * sp.W + "px"; b.style.height = cw * sp.H + cap + "px";
   $$(".slot", b).forEach(el => { const p = sp.pos[+el.dataset.i]; el.style.left = cw * p.x + "px"; el.style.top = cw * p.y + "px"; });
 }
 function renderBoard() {
-  const r = S.reading, sp = SPREADS.find(s => s.id === r.spread), b = $("#board");
+  const r = S.reading, sp = SP(r.spread), b = $("#board");
   b.innerHTML = sp.pos.map((p, i) => {
     const c = BY_ID[r.cards[i].id], rev = r.cards[i].rev, open = r.open[i];
     return `<div class="slot${p.cross ? " cross" : ""}" data-i="${i}">
       <button class="card${open ? " flipped" : ""}" style="--d:${i * 110}ms" data-i="${i}" aria-label="${open ? esc(c.n) : "Закрытая карта, позиция " + (i + 1)}">
-        <span class="inner">
-          <span class="face back"><img src="${BACK}" alt=""></span>
-          <span class="face front"><img class="${rev ? "rev" : ""}" src="${c.img}" alt="${esc(c.n)}${rev ? ", перевёрнутая" : ""}"></span>
-        </span>
+        <span class="inner"><span class="face back"><img src="${BACK}" alt=""></span>
+        <span class="face front"><img class="${rev ? "rev" : ""}" src="${c.img}" alt="${esc(c.n)}${rev ? ", перевёрнутая" : ""}"></span></span>
       </button>
-      ${sp.pos.length > 1 ? `<span class="badge">${i + 1}</span>` : ""}
-      ${sp.caption ? `<span class="cap">${esc(p.name)}</span>` : ""}
+      ${sp.pos.length > 1 ? `<span class="badge">${i + 1}</span>` : ""}${sp.caption ? `<span class="cap">${esc(p.name)}</span>` : ""}
     </div>`;
   }).join("");
   $$(".card", b).forEach(el => el.addEventListener("click", () => onCard(+el.dataset.i)));
@@ -458,109 +556,141 @@ function renderBoard() {
 function onCard(i) {
   const r = S.reading;
   if (!r.open[i]) { r.open[i] = true; $$(".card")[i].classList.add("flipped"); afterFlip(); }
-  else openSheet(r.cards[i].id, r.cards[i].rev, SPREADS.find(s => s.id === r.spread).pos[i].name);
+  else openCard(r.cards[i].id, r.cards[i].rev, SP(r.spread).pos[i].name);
+}
+function verdictHTML(r) {
+  const yes = !r.cards[0].rev;
+  return { cls: "verdict" + (yes ? "" : " no"), html: `<b>${yes ? "Да" : "Нет"}</b><span class="lead">${yes ? "Карта выпала прямо." : "Карта выпала перевёрнутой."}</span>` };
 }
 function afterFlip() {
-  const r = S.reading, all = r.open.every(Boolean);
-  $("#flipHint").hidden = all;
-  $("#openAll").hidden = all;
-  $("#save").disabled = !all;
-  $("#result").hidden = !all;
-  if (all) { renderResult(); setTimeout(() => $("#result").scrollIntoView({ behavior: "smooth", block: "nearest" }), 500); }
-  renderVerdict();
+  const r = S.reading, sp = SP(r.spread), all = r.open.every(Boolean), v = $("#verdict");
+  $("#flipHint").hidden = all; $("#openAll").hidden = all; $("#toResult").disabled = !all;
+  if (sp.yesno && r.open[0]) { const d = verdictHTML(r); v.className = d.cls; v.innerHTML = d.html; v.hidden = false; } else v.hidden = true;
+  requestAnimationFrame(fitBoard);
 }
-function firstSentence(t) { const m = t.match(/^.*?[.!?](\s|$)/); return m ? m[0].trim() : t; }
-function renderVerdict() {
-  const r = S.reading, sp = SPREADS.find(s => s.id === r.spread), v = $("#verdict");
-  if (!sp.yesno || !r.open[0]) { v.hidden = true; return; }
-  const yes = !r.cards[0].rev;
-  v.className = "verdict" + (yes ? "" : " no"); v.hidden = false;
-  v.innerHTML = `<b>${yes ? "Да" : "Нет"}</b><span class="lead">${yes ? "Карта выпала прямо." : "Карта выпала перевёрнутой."}</span>`;
-}
-function renderResult() {
-  const r = S.reading, sp = SPREADS.find(s => s.id === r.spread);
-  $("#rows").innerHTML = sp.pos.map((p, i) => {
-    const c = BY_ID[r.cards[i].id], rev = r.cards[i].rev, d = rev ? c.r : c.u;
-    return `<div class="row">
-      <img class="${rev ? "rev" : ""}" src="${c.img}" alt="">
-      <div><div class="pos">${sp.pos.length > 1 ? (i + 1) + ". " : ""}${esc(p.name)}</div>
-        <div class="nm">${esc(c.n)}${rev ? ' <span class="chip">перевёрнутая</span>' : ""}</div>
-        <div class="tx">${esc(firstSentence(d.e))}</div></div>
-      <button class="btn ghost small" data-open="${i}">Подробнее</button>
-    </div>`;
-  }).join("");
-  $$("[data-open]").forEach(b => b.addEventListener("click", () => { const i = +b.dataset.open; openSheet(r.cards[i].id, r.cards[i].rev, sp.pos[i].name); }));
-}
-function startReading(spreadId, cards, question, opened) {
-  const sp = SPREADS.find(s => s.id === spreadId);
-  S.reading = { spread: spreadId, cards, q: question || "", open: cards.map(() => !!opened), saved: false };
-  $("#stage").hidden = false;
+function startReading(entry, openedAll) {
+  const sp = SP(entry.spread);
+  S.reading = { id: entry.id, spread: entry.spread, cards: entry.cards, q: entry.q || "", open: entry.cards.map(() => !!openedAll), aiText: null };
+  $("#tTitle").textContent = sp.name; $("#rTitle").textContent = sp.name;
   const q = $("#qEcho"); q.hidden = !S.reading.q; q.textContent = S.reading.q ? "«" + S.reading.q + "»" : "";
-  $("#flipHint").hidden = false; $("#openAll").hidden = false; $("#save").disabled = true; $("#result").hidden = true; $("#verdict").hidden = true;
-  $("#save").textContent = "Сохранить в историю";
-  renderBoard();
-  if (opened) afterFlip();
-  $("#stage").scrollIntoView({ behavior: "smooth", block: "start" });
+  $("#savedMark").hidden = false;
+  renderBoard(); afterFlip();
 }
-$("#draw").addEventListener("click", () => {
-  const sp = SPREADS.find(s => s.id === S.spread);
-  startReading(sp.id, pickCards(sp, $("#useRev").checked), $("#question").value.trim(), false);
-});
-$("#again").addEventListener("click", () => { $("#stage").hidden = true; S.reading = null; $("#view-spreads").scrollIntoView({ behavior: "smooth" }); });
+function newReading() {
+  const sp = SP(S.spread);
+  if (!can("spread." + sp.id)) return openUpsell("spread." + sp.id, "Расклад «" + sp.name + "»");
+  const useRev = can("reversed") && $("#useRev").checked;
+  const q = can("question") ? $("#question").value.trim() : "";
+  const h = getHist();
+  let entry = sp.daily ? h.find(e => e.spread === "day" && e.day === dayKey()) : null;
+  if (!entry) {
+    entry = { id: Date.now() + "-" + rnd(1e6), t: Date.now(), spread: sp.id, q, cards: pickCards(sp, useRev), fav: false };
+    if (sp.daily) entry.day = dayKey();
+    h.unshift(entry); setHist(h); renderHistory();
+  }
+  startReading(entry, !!(sp.daily && h.length && entry.t < Date.now() - 1000));
+  show("table");
+  if (sp.daily && S.reading.open.every(Boolean)) toast("Карта дня уже вытянута, она не меняется до полуночи");
+}
+$("#draw").addEventListener("click", newReading);
 $("#openAll").addEventListener("click", () => {
   const r = S.reading; r.open = r.open.map(() => true);
   $$(".card").forEach((el, i) => setTimeout(() => el.classList.add("flipped"), i * 160));
-  setTimeout(afterFlip, r.open.length * 160 + 600);
+  setTimeout(afterFlip, r.open.length * 160 + 700);
 });
-$("#ai").addEventListener("click", () => toast("ИИ-толкование появится после подключения DeepSeek и подписки"));
-$("#save").addEventListener("click", () => {
-  const r = S.reading; if (r.saved) return;
-  const h = store.get("tarot_history_v1", []);
-  h.unshift({ t: Date.now(), spread: r.spread, q: r.q, cards: r.cards, fav: false });
-  store.set("tarot_history_v1", h.slice(0, 200));
-  r.saved = true; $("#save").textContent = "Сохранено"; toast("Расклад сохранён в историю");
-});
+$("#exit1").addEventListener("click", () => { S.reading = null; show("pick"); });
+$("#exit2").addEventListener("click", () => { S.reading = null; show("pick"); });
+$("#toResult").addEventListener("click", () => { renderResult(); show("result"); });
+$("#toTable").addEventListener("click", () => show("table"));
 let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(fitBoard, 80); });
-$("#useRev").addEventListener("change", e => { $("#useRev2").checked = e.target.checked; });
-$("#useRev2").addEventListener("change", e => { $("#useRev").checked = e.target.checked; });
 
-/* ---------- карточка карты ---------- */
-function openSheet(id, rev, posName, free) {
-  const c = BY_ID[id]; let cur = !!rev;
-  const sh = $("#sheet");
-  const draw = () => {
-    const d = cur ? c.r : c.u, kws = cur ? c.kr : c.kw;
-    sh.innerHTML = `
-      <button class="icon-btn close" aria-label="Закрыть">✕</button>
-      <div class="pic"><img class="${cur ? "rev" : ""}" src="${c.img}" alt="${esc(c.n)}"></div>
-      <div>
-        ${posName ? `<span class="tag">${esc(posName)}</span>` : `<span class="tag">${SUITS[c.a]}</span>`}
-        <h2 id="sheetTitle" style="margin-top:8px">${esc(c.n)}</h2>
-        <div class="seg" role="group" aria-label="Положение карты">
-          <button data-rev="0" aria-pressed="${!cur}">Прямая</button><button data-rev="1" aria-pressed="${cur}">Перевёрнутая</button>
-        </div>
-        <div class="kw">${kws.map(k => `<span class="chip">${esc(k)}</span>`).join("")}</div>
-        <div class="block"><h4>Суть</h4><p>${esc(d.e)}</p></div>
-        <div class="block"><h4>Психология</h4><p>${esc(d.p)}</p></div>
-        <div class="block"><h4>Работа и карьера</h4><p>${esc(d.c)}</p></div>
-        <div class="block"><h4>Отношения</h4><p>${esc(d.l)}</p></div>
-        <div class="block"><h4>Состояние и решения</h4><p>${esc(d.s)}</p></div>
-      </div>`;
-    $(".close", sh).addEventListener("click", closeSheet);
-    $$(".seg button", sh).forEach(b => b.addEventListener("click", () => { cur = b.dataset.rev === "1"; draw(); }));
-  };
-  draw(); $(".close", sh).focus();
-  $("#overlay").hidden = false; document.body.style.overflow = "hidden";
+/* ================= шаг 3: разбор ================= */
+function firstSentence(t) { const m = t.match(/^.*?[.!?](\s|$)/); return m ? m[0].trim() : t; }
+function renderResult() {
+  const r = S.reading; if (!r) return;
+  const sp = SP(r.spread), v = $("#verdict2");
+  if (sp.yesno) { const d = verdictHTML(r); v.className = d.cls; v.innerHTML = d.html; v.hidden = false; } else v.hidden = true;
+  $("#rows").innerHTML = sp.pos.map((p, i) => {
+    const c = BY_ID[r.cards[i].id], rev = r.cards[i].rev, d = rev ? c.r : c.u;
+    return `<div class="row"><img class="${rev ? "rev" : ""}" src="${c.img}" alt="">
+      <div><div class="pos">${sp.pos.length > 1 ? (i + 1) + ". " : ""}${esc(p.name)}</div>
+        <div class="nm">${esc(c.n)}${rev ? ' <span class="chip">перевёрнутая</span>' : ""}</div>
+        <div class="tx">${esc(firstSentence(d.e))}</div></div>
+      <button class="btn ghost small" data-open="${i}">Подробнее</button></div>`;
+  }).join("");
+  $$("[data-open]").forEach(b => b.addEventListener("click", () => { const i = +b.dataset.open; openCard(r.cards[i].id, r.cards[i].rev, sp.pos[i].name); }));
+  renderAI();
 }
-function closeSheet() { $("#overlay").hidden = true; document.body.style.overflow = ""; }
+/* Демо ИИ-толкования: текст собран из значений карт. Настоящий DeepSeek подключим позже. */
+const AIK = "tarot_ai_usage_v1";
+function aiUsed() { const u = store.get(AIK, null); return u && u.d === dayKey() ? u.n : 0; }
+function aiDemoText(r) {
+  const sp = SP(r.spread), list = r.cards.map((k, i) => ({ c: BY_ID[k.id], rev: k.rev, pos: sp.pos[i].name }));
+  const d = x => x.rev ? x.c.r : x.c.u;
+  const first = list[0], last = list[list.length - 1];
+  const out = [`Общий смысл. ${r.q ? "На вопрос «" + r.q + "» " : ""}расклад «${sp.name}» начинается с темы «${first.c.n}»${first.rev ? " в перевёрнутом положении" : ""}: ${firstSentence(d(first).e)}`];
+  if (list.length > 1) out.push(`Чем он заканчивается. «${last.c.n}» в позиции «${last.pos}»: ${firstSentence(d(last).e)}`);
+  list.slice(0, 4).forEach(x => out.push(`${x.pos}. ${x.c.n}${x.rev ? " (перевёрнутая)" : ""}: ${firstSentence(d(x).p)}`));
+  out.push(`Совет. ${d(first).s}`);
+  return out;
+}
+function renderAI() {
+  const r = S.reading, box = $("#aiBox");
+  let html = `<span class="tag">ИИ-толкование</span><h3 style="font-size:22px">Разбор расклада целиком</h3>`;
+  if (!can("ai")) {
+    html += `<p class="lead" style="margin:0; font-size:15px">Связный разбор всех позиций вместе, с учётом вашего вопроса и с советом в конце.</p>
+      <div class="blur" aria-hidden="true"><i style="width:96%"></i><i style="width:88%"></i><i style="width:92%"></i><i style="width:60%"></i><i style="width:90%"></i></div>
+      <button class="btn" id="aiBtn">🔒 Доступно по подписке</button>`;
+  } else {
+    const lim = limit("ai.limit"), used = aiUsed();
+    if (r.aiText) html += `<div class="ai-text"><span class="demo">Демо: текст собран из значений карт</span>${r.aiText.map(t => `<p>${esc(t)}</p>`).join("")}</div>`;
+    else html += `<p class="lead" style="margin:0; font-size:15px">Связный разбор всех позиций вместе, с учётом вашего вопроса и с советом в конце.</p><button class="btn" id="aiBtn">Получить толкование</button>`;
+    html += `<p class="hint" style="text-align:left">${Number.isFinite(lim) ? `Сегодня использовано ${used} из ${lim}.` : "Без ограничения по числу."}</p>`;
+  }
+  box.innerHTML = html;
+  const btn = $("#aiBtn"); if (!btn) return;
+  btn.addEventListener("click", () => {
+    if (!can("ai")) return openUpsell("ai", "ИИ-толкование расклада");
+    if (aiUsed() >= limit("ai.limit")) return openUpsell("ai", "Лимит ИИ-толкований на сегодня исчерпан");
+    store.set(AIK, { d: dayKey(), n: aiUsed() + 1 }); S.reading.aiText = aiDemoText(S.reading); renderAI();
+  });
+}
+
+/* ================= карточка карты ================= */
+function openOverlay() { $("#overlay").hidden = false; }
+function closeSheet() { $("#overlay").hidden = true; }
+function openCard(id, rev, posName) {
+  const c = BY_ID[id]; let cur = !!rev;
+  const sh = $("#sheet"); sh.className = "sheet";
+  const blocks = (d) => {
+    const psy = can("lib.psy"), pr = can("lib.practice");
+    const lockedBlock = (title, feat) => `<div class="block locked"><h4>${title} <span class="lock">🔒 по подписке</span></h4><div class="blur" aria-hidden="true"><i style="width:90%"></i><i style="width:70%"></i></div><button class="btn ghost small" data-up="${feat}" data-what="${title}">Открыть</button></div>`;
+    return `<div class="block"><h4>Суть</h4><p>${esc(d.e)}</p></div>` +
+      (psy ? `<div class="block"><h4>Психология</h4><p>${esc(d.p)}</p></div>` : lockedBlock("Психология", "lib.psy")) +
+      (pr ? `<div class="block"><h4>Работа и карьера</h4><p>${esc(d.c)}</p></div><div class="block"><h4>Отношения</h4><p>${esc(d.l)}</p></div><div class="block"><h4>Состояние и решения</h4><p>${esc(d.s)}</p></div>`
+          : lockedBlock("Работа, отношения, состояние", "lib.practice"));
+  };
+  const draw = (first) => {
+    const d = cur ? c.r : c.u, kws = cur ? c.kr : c.kw;
+    sh.innerHTML = `<button class="icon-btn close" aria-label="Закрыть">✕</button>
+      <div class="pic"><img class="${cur ? "rev" : ""}" src="${c.img}" alt="${esc(c.n)}"></div>
+      <div><span class="tag">${esc(posName || SUITS[c.a])}</span><h2 style="margin-top:8px">${esc(c.n)}</h2>
+        <div class="seg" role="group" aria-label="Положение карты"><button data-rev="0" aria-pressed="${!cur}">Прямая</button><button data-rev="1" aria-pressed="${cur}">Перевёрнутая</button></div>
+        <div class="kw">${kws.map(k => `<span class="chip">${esc(k)}</span>`).join("")}</div>${blocks(d)}</div>`;
+    $(".close", sh).addEventListener("click", closeSheet);
+    $$(".seg button", sh).forEach(b => b.addEventListener("click", () => { cur = b.dataset.rev === "1"; draw(false); }));
+    $$("[data-up]", sh).forEach(b => b.addEventListener("click", () => openUpsell(b.dataset.up, b.dataset.what)));
+    if (first) $(".close", sh).focus();
+  };
+  draw(true); openOverlay();
+}
 $("#overlay").addEventListener("click", e => { if (e.target.id === "overlay") closeSheet(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#overlay").hidden) closeSheet(); });
 
-/* ---------- значения карт ---------- */
+/* ================= значения ================= */
 function renderLib() {
   const f = $("#filters");
-  const opts = [["all", "Все"], ...Object.entries(SUITS)];
-  f.innerHTML = opts.map(([k, v]) => `<button data-f="${k}" aria-pressed="${S.filter === k}">${v}</button>`).join("") +
+  f.innerHTML = [["all", "Все"], ...Object.entries(SUITS)].map(([k, v]) => `<button data-f="${k}" aria-pressed="${S.filter === k}">${v}</button>`).join("") +
     `<input type="search" id="search" placeholder="Найти карту или слово" aria-label="Поиск" value="${esc(S.q)}">`;
   $$("button", f).forEach(b => b.addEventListener("click", () => { S.filter = b.dataset.f; renderLib(); }));
   $("#search", f).addEventListener("input", e => { S.q = e.target.value; drawLibGrid(); });
@@ -568,37 +698,65 @@ function renderLib() {
 }
 function drawLibGrid() {
   const q = S.q.trim().toLowerCase();
-  const list = CARDS.filter(c => (S.filter === "all" || c.a === S.filter) &&
-    (!q || c.n.toLowerCase().includes(q) || c.kw.concat(c.kr).some(k => k.toLowerCase().includes(q))));
+  const list = CARDS.filter(c => (S.filter === "all" || c.a === S.filter) && (!q || c.n.toLowerCase().includes(q) || c.kw.concat(c.kr).some(k => k.toLowerCase().includes(q))));
   $("#libGrid").innerHTML = list.map(c => `<button class="tile" data-id="${c.id}"><img src="${c.img}" alt="${esc(c.n)}" loading="lazy"><span>${esc(c.n)}</span></button>`).join("");
-  $$(".tile").forEach(t => t.addEventListener("click", () => openSheet(t.dataset.id, false, "")));
+  $$(".tile").forEach(t => t.addEventListener("click", () => openCard(t.dataset.id, false, "")));
   $("#libEmpty").hidden = list.length > 0;
 }
 
-/* ---------- история ---------- */
+/* ================= мои расклады ================= */
 const fmt = t => new Date(t).toLocaleString("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
 function renderHistory() {
-  const h = store.get("tarot_history_v1", []);
-  $("#histEmpty").hidden = h.length > 0;
-  $("#histList").innerHTML = h.map((e, i) => {
-    const sp = SPREADS.find(s => s.id === e.spread);
-    return `<div class="hist-item">
-      <div class="thumbs">${e.cards.slice(0, 5).map(k => `<img class="${k.rev ? "rev" : ""}" src="${BY_ID[k.id].img}" alt="">`).join("")}</div>
+  const all = getHist(), h = visibleHist();
+  $("#histEmpty").hidden = all.length > 0;
+  $("#histList").innerHTML = h.map(e => {
+    const sp = SP(e.spread);
+    return `<div class="hist-item"><div class="thumbs">${e.cards.slice(0, 5).map(k => `<img class="${k.rev ? "rev" : ""}" src="${BY_ID[k.id].img}" alt="">`).join("")}</div>
       <div class="meta"><b>${sp.name}</b><div>${fmt(e.t)}${e.q ? " · «" + esc(e.q) + "»" : ""}</div></div>
-      <div class="hist-actions">
-        <button class="icon-btn" data-fav="${i}" aria-pressed="${!!e.fav}" aria-label="В избранное">★</button>
-        <button class="btn ghost small" data-view="${i}">Открыть</button>
-        <button class="icon-btn" data-del="${i}" aria-label="Удалить">✕</button>
-      </div></div>`;
+      <div class="hist-actions"><button class="icon-btn" data-fav="${e.id}" aria-pressed="${!!e.fav}" aria-label="В избранное">★</button>
+      <button class="btn ghost small" data-view="${e.id}">Открыть</button><button class="icon-btn" data-del="${e.id}" aria-label="Удалить">✕</button></div></div>`;
   }).join("");
-  $$("[data-fav]").forEach(b => b.addEventListener("click", () => { const h2 = store.get("tarot_history_v1", []); h2[+b.dataset.fav].fav = !h2[+b.dataset.fav].fav; store.set("tarot_history_v1", h2); renderHistory(); }));
-  $$("[data-del]").forEach(b => b.addEventListener("click", () => { const h2 = store.get("tarot_history_v1", []); h2.splice(+b.dataset.del, 1); store.set("tarot_history_v1", h2); renderHistory(); }));
+  const hid = all.length - h.length;
+  $("#histNote").innerHTML = hid > 0 ? `Скрыто раскладов: ${hid}. Они откроются на тарифе с большей историей. <a href="#" id="histUp" style="color:var(--accent)">Подробнее</a>` : "";
+  const up = $("#histUp"); if (up) up.addEventListener("click", e => { e.preventDefault(); openUpsell("history.limit", "Больше раскладов в истории"); });
+  $$("[data-fav]").forEach(b => b.addEventListener("click", () => { const x = getHist(); const e = x.find(z => z.id === b.dataset.fav); e.fav = !e.fav; setHist(x); renderHistory(); }));
+  $$("[data-del]").forEach(b => b.addEventListener("click", () => { setHist(getHist().filter(z => z.id !== b.dataset.del)); renderHistory(); }));
   $$("[data-view]").forEach(b => b.addEventListener("click", () => {
-    const e = store.get("tarot_history_v1", [])[+b.dataset.view];
-    S.spread = e.spread; renderSpreadList(); updateNote(); showTab("spreads"); startReading(e.spread, e.cards, e.q, true); S.reading.saved = true; $("#save").textContent = "Сохранено";
+    const e = getHist().find(z => z.id === b.dataset.view); S.spread = e.spread; renderSpreadList();
+    startReading(e, true); renderResult(); show("result");
   }));
 }
 
-/* ---------- старт ---------- */
-renderSpreadList(); updateNote(); renderLib();
+/* ================= подписка (тест тарифов) ================= */
+function renderPlans() {
+  $("#planSeg").innerHTML = ["all", ...PLAN_ORDER].map(p => `<button data-plan="${p}" aria-pressed="${TAR.current === p}">${PLAN_NAMES[p]}</button>`).join("");
+  $$("#planSeg button").forEach(b => b.addEventListener("click", () => { setPlan(b.dataset.plan); }));
+  $("#planNote").textContent = TAR.current === "all" ? "Сейчас доступно всё, ограничений нет." : "Включён тариф «" + PLAN_NAMES[TAR.current] + "». Закрытое показывается с замком.";
+  let rows = "", grp = "";
+  const head = `<thead><tr><th>Что входит</th>${PLAN_ORDER.map(p => `<th class="${TAR.current === p ? "cur" : ""}">${PLAN_NAMES[p]}</th>`).join("")}</tr></thead>`;
+  for (const f of FEATURES) {
+    if (f.group !== grp) { grp = f.group; rows += `<tr class="grp"><td colspan="${PLAN_ORDER.length + 1}">${grp}</td></tr>`; }
+    rows += `<tr><td>${f.label}</td>${PLAN_ORDER.map(p => {
+      const v = TAR.matrix[p][f.id], cur = TAR.current === p ? ' class="cur"' : "";
+      return f.num ? `<td${cur}><input type="number" min="0" data-f="${f.id}" data-p="${p}" value="${v === "" ? "" : v}" aria-label="${f.label}, ${PLAN_NAMES[p]}"></td>`
+                   : `<td${cur}><input type="checkbox" data-f="${f.id}" data-p="${p}" ${v ? "checked" : ""} aria-label="${f.label}, ${PLAN_NAMES[p]}"></td>`;
+    }).join("")}</tr>`;
+  }
+  $("#matrix").innerHTML = head + "<tbody>" + rows + "</tbody>";
+  $$("#matrix input").forEach(i => i.addEventListener("change", () => {
+    TAR.matrix[i.dataset.p][i.dataset.f] = i.type === "checkbox" ? i.checked : (i.value === "" ? "" : Math.max(0, +i.value));
+    saveTar(); renderSpreadList(); updateSetup(); renderHistory(); renderLib();
+    if (S.screen === "result") renderResult();
+  }));
+}
+$("#resetPlans").addEventListener("click", () => { TAR.matrix = clone(DEFAULT_MATRIX); saveTar(); refreshPlan(); toast("Начальные тарифы возвращены"); });
+
+/* ================= профиль ================= */
+$("#tgBtn").addEventListener("click", () => { if (!can("notify")) return openUpsell("notify", "Уведомления в Telegram"); toast("Привязку Telegram подключим вместе с ботом"); });
+$("#logout").addEventListener("click", () => toast("Выход из аккаунта подключим на этапе с базой"));
+
+/* ================= старт ================= */
+renderSpreadList(); updateSetup(); renderLib(); renderHistory(); renderPlans();
+$("#planChip").textContent = PLAN_NAMES[TAR.current];
+$("#tgBtn").innerHTML = can("notify") ? "Привязать Telegram" : "Привязать Telegram <span class='lock'>🔒 по подписке</span>";
 </script>
