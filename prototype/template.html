@@ -221,6 +221,9 @@ table.matrix { border-collapse: collapse; width: 100%; min-width: 560px; font-si
 .block h4 { margin: 0 0 3px; font: 600 12px/1.4 var(--body); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
 .block p { margin: 0; max-width: 62ch; }
 .block.locked p { color: var(--muted); }
+.pic img.zoomable { cursor: pointer; }
+.zoom { position: fixed; inset: 0; z-index: 90; cursor: pointer; touch-action: manipulation; }
+.zoom img { position: absolute; border-radius: 12px; box-shadow: 0 20px 60px #000c; will-change: transform; display: block; }
 .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 18px; border-radius: 999px; z-index: 80; font-size: 14px; max-width: 90vw; }
 
 @media (max-width: 640px) {
@@ -669,7 +672,7 @@ function renderAI() {
 /* ================= карточка карты ================= */
 function openOverlay() { $("#overlay").hidden = false; }
 function closeSheet() { $("#overlay").hidden = true; }
-function openCard(id, rev, posName) {
+function openCard(id, rev, posName, zoomable) {
   const c = BY_ID[id]; let cur = !!rev;
   const sh = $("#sheet"); sh.className = "sheet";
   const blocks = (d) => {
@@ -683,11 +686,16 @@ function openCard(id, rev, posName) {
   const draw = (first) => {
     const d = cur ? c.r : c.u, kws = cur ? c.kr : c.kw;
     sh.innerHTML = `<button class="icon-btn close" aria-label="Закрыть">✕</button>
-      <div class="pic"><img class="${cur ? "rev" : ""}" src="${c.img}" alt="${esc(c.n)}"></div>
+      <div class="pic"><img class="${cur ? "rev" : ""}${zoomable ? " zoomable" : ""}" src="${c.img}" alt="${esc(c.n)}"${zoomable ? ' tabindex="0" role="button" aria-label="Увеличить карту"' : ""}></div>
       <div><span class="tag">${esc(posName || SUITS[c.a])}</span><h2 style="margin-top:8px">${esc(c.n)}</h2>
         <div class="seg" role="group" aria-label="Положение карты"><button data-rev="0" aria-pressed="${!cur}">Прямая</button><button data-rev="1" aria-pressed="${cur}">Перевёрнутая</button></div>
         <div class="kw">${kws.map(k => `<span class="chip">${esc(k)}</span>`).join("")}</div>${blocks(d)}</div>`;
     $(".close", sh).addEventListener("click", closeSheet);
+    const pic = $(".pic img", sh);
+    if (zoomable) {
+      pic.addEventListener("click", () => openZoom(c, cur, pic));
+      pic.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openZoom(c, cur, pic); } });
+    }
     $$(".seg button", sh).forEach(b => b.addEventListener("click", () => { cur = b.dataset.rev === "1"; draw(false); }));
     $$("[data-up]", sh).forEach(b => b.addEventListener("click", () => openUpsell(b.dataset.up, b.dataset.what)));
     if (first) $(".close", sh).focus();
@@ -695,7 +703,52 @@ function openCard(id, rev, posName) {
   draw(true); openOverlay();
 }
 $("#overlay").addEventListener("click", e => { if (e.target.id === "overlay") closeSheet(); });
-document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#overlay").hidden) closeSheet(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") { if (ZOOM) closeZoom(); else if (!$("#overlay").hidden) closeSheet(); } });
+window.addEventListener("resize", () => { if (ZOOM) closeZoom(true); });
+
+/* ================= увеличение карты (только в «Значениях») ================= */
+// Карта растёт до размера, который целиком помещается в окно. Перевёрнутая при этом разворачивается в нормальное положение.
+// В увеличенном виде подгружается оригинал 1280×1920: рядом с файлом страницы лежит папка decks/cosmic-mysticism.
+const FULL_BASES = ["../decks/cosmic-mysticism/", "decks/cosmic-mysticism/"];
+let fullBase = -1, ZOOM = null;
+function loadFull(card, done) {
+  const tryAt = i => {
+    if (i >= FULL_BASES.length) return;
+    const im = new Image();
+    im.onload = () => { fullBase = i; done(im.src); };
+    im.onerror = () => tryAt(i + 1);
+    im.src = FULL_BASES[i] + card.f;
+  };
+  tryAt(fullBase >= 0 ? fullBase : 0);
+}
+function openZoom(card, rev, pic) {
+  if (ZOOM) return;
+  const r0 = pic.getBoundingClientRect(), m = innerWidth < 640 ? 6 : 16;
+  const w = Math.min(innerWidth - 2 * m, (innerHeight - 2 * m) * 2 / 3), h = w * 1.5;
+  const left = (innerWidth - w) / 2, top = (innerHeight - h) / 2;
+  const layer = document.createElement("div"); layer.className = "zoom";
+  const img = document.createElement("img"); img.alt = card.n; img.src = card.img;
+  img.style.cssText = `left:${left}px; top:${top}px; width:${w}px; height:${h}px`;
+  layer.appendChild(img); document.body.appendChild(layer);
+  const from = `translate(${r0.left + r0.width / 2 - (left + w / 2)}px, ${r0.top + r0.height / 2 - (top + h / 2)}px) scale(${r0.width / w}) rotate(${rev ? 180 : 0}deg)`;
+  img.style.transform = from;
+  $("#sheet").style.visibility = "hidden";
+  ZOOM = { layer, img, from };
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    img.style.transition = "transform .4s cubic-bezier(.2,.8,.2,1)";
+    img.style.transform = "translate(0px, 0px) scale(1) rotate(0deg)";
+  }));
+  loadFull(card, src => { if (ZOOM && ZOOM.img === img) img.src = src; });
+  layer.addEventListener("click", () => closeZoom());
+}
+function closeZoom(instant) {
+  if (!ZOOM) return;
+  const { layer, img, from } = ZOOM; ZOOM = null;
+  const done = () => { layer.remove(); $("#sheet").style.visibility = ""; };
+  if (instant) return done();
+  img.style.transform = from;
+  setTimeout(done, 400);
+}
 
 /* ================= значения ================= */
 function renderLib() {
@@ -710,7 +763,7 @@ function drawLibGrid() {
   const q = S.q.trim().toLowerCase();
   const list = CARDS.filter(c => (S.filter === "all" || c.a === S.filter) && (!q || c.n.toLowerCase().includes(q) || c.kw.concat(c.kr).some(k => k.toLowerCase().includes(q))));
   $("#libGrid").innerHTML = list.map(c => `<button class="tile" data-id="${c.id}"><img src="${c.img}" alt="${esc(c.n)}" loading="lazy"><span>${esc(c.n)}</span></button>`).join("");
-  $$(".tile").forEach(t => t.addEventListener("click", () => openCard(t.dataset.id, false, "")));
+  $$(".tile").forEach(t => t.addEventListener("click", () => openCard(t.dataset.id, false, "", true)));
   $("#libEmpty").hidden = list.length > 0;
 }
 
