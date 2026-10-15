@@ -1,0 +1,33 @@
+name: Deploy to Cloudflare
+
+# Сайт обновляется сам после каждого коммита в main, который меняет страницу, колоду или настройки.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "prototype/index.html"
+      - "decks/**"
+      - "site/**"
+      - "wrangler.jsonc"
+      - "tools/build_site.sh"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Assemble site
+        run: bash tools/build_site.sh
+
+      - name: Deploy Worker
+        run: npx --yes wrangler@4 deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
