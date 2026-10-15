@@ -54,9 +54,17 @@ header.top { flex: none; display: flex; align-items: center; gap: 12px 16px; fle
 .ava { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-weight: 600; font-size: 14px; }
 .uname { font-size: 14px; }
 .plan { font-size: 12px; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
-nav.tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px; }
-nav.tabs button { border: 0; background: none; padding: 7px 15px; border-radius: 999px; color: var(--muted); font-weight: 500; white-space: nowrap; }
-nav.tabs button[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
+.menu-wrap { position: relative; }
+.burger { width: 42px; height: 42px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; padding: 0; }
+.burger svg { width: 22px; height: 22px; stroke: var(--fg); }
+.burger[aria-expanded="true"] { border-color: var(--accent); }
+.menu { position: absolute; left: 0; top: calc(100% + 8px); z-index: 40; min-width: 240px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px; padding: 6px; box-shadow: 0 14px 40px #000b; display: grid; gap: 2px; }
+.menu button { border: 0; background: none; text-align: left; padding: 11px 14px; border-radius: 10px; color: var(--fg); font-weight: 500; }
+.menu button:hover { background: var(--surface); }
+.menu button[aria-current="page"] { background: var(--accent-soft); color: var(--accent); }
+.timepick { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.timepick select { width: auto; }
+.timepick .seg { margin: 0; }
 .stage { flex: 1; min-height: 0; position: relative; overflow: hidden; padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
 .screen {
   position: absolute; inset: 0 0 calc(10px + env(safe-area-inset-bottom, 0px)) 0; display: flex; flex-direction: column;
@@ -218,8 +226,6 @@ table.matrix { border-collapse: collapse; width: 100%; min-width: 560px; font-si
 @media (max-width: 640px) {
   .brand small { display: none; }
   header.top { padding-top: 6px; }
-  nav.tabs { order: 3; width: 100%; overflow-x: auto; scrollbar-width: none; }
-  nav.tabs button { flex: 1 0 auto; padding: 7px 11px; font-size: 14px; }
   .uname { display: none; }
   .user { padding-right: 6px; }
   .bar-title b { font-size: 18px; }
@@ -231,15 +237,20 @@ table.matrix { border-collapse: collapse; width: 100%; min-width: 560px; font-si
 <div class="sky" aria-hidden="true"></div>
 <div class="app">
   <header class="top">
+    <div class="menu-wrap">
+      <button class="burger" id="burger" aria-label="Меню" aria-haspopup="true" aria-expanded="false" aria-controls="menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <div class="menu" id="menu" role="menu" hidden>
+        <button role="menuitem" data-tab="spreads" aria-current="page">Расклады</button>
+        <button role="menuitem" data-tab="hist" aria-current="false">Мои расклады</button>
+        <button role="menuitem" data-tab="lib" aria-current="false">Значения</button>
+        <button role="menuitem" data-tab="sub" aria-current="false">Подписка</button>
+        <button role="menuitem" data-tab="set" aria-current="false">Профиль</button>
+      </div>
+    </div>
     <div class="brand">Таро <small>Космический мистицизм</small></div>
     <button class="user" id="userChip" aria-label="Мой тариф"><span class="ava">В</span><span class="uname">Владимир</span><span class="plan" id="planChip"></span></button>
-    <nav class="tabs" role="tablist" aria-label="Разделы кабинета">
-      <button role="tab" data-tab="spreads" aria-selected="true">Расклады</button>
-      <button role="tab" data-tab="hist" aria-selected="false">Мои расклады</button>
-      <button role="tab" data-tab="lib" aria-selected="false">Значения</button>
-      <button role="tab" data-tab="sub" aria-selected="false">Подписка</button>
-      <button role="tab" data-tab="set" aria-selected="false">Профиль</button>
-    </nav>
   </header>
 
   <div class="stage" id="stage">
@@ -331,14 +342,7 @@ table.matrix { border-collapse: collapse; width: 100%; min-width: 560px; font-si
         <div class="panel stack">
           <h3>Настройки</h3>
           <label class="field" for="lang">Язык<select id="lang"><option>Русский</option><option disabled>English (скоро)</option><option disabled>Español (скоро)</option></select></label>
-          <label class="field" for="tz">Часовой пояс<select id="tz"><option>Москва, UTC+3</option><option>Лондон, UTC+0</option><option>Нью-Йорк, UTC−5</option></select></label>
-          <label class="field" for="dt">Время карты дня<select id="dt"><option>08:00</option><option>09:00</option><option>12:00</option></select></label>
           <label class="switch" for="useRev2"><input type="checkbox" id="useRev2" checked> Перевёрнутые карты</label>
-        </div>
-        <div class="panel stack">
-          <h3>Уведомления</h3>
-          <p class="lead" style="margin:0">Telegram-бот напомнит, что расклад готов, и позовёт вернуться в кабинет.</p>
-          <button class="btn ghost" id="tgBtn" style="justify-self:start">Привязать Telegram</button>
           <h3 style="margin-top:6px">Цвет оформления</h3>
           <div class="accents" role="group" aria-label="Цвет оформления">
             <button class="dot-gold" data-accent="gold" aria-label="Золото" aria-pressed="true"></button>
@@ -347,6 +351,7 @@ table.matrix { border-collapse: collapse; width: 100%; min-width: 560px; font-si
           </div>
           <button class="btn ghost small" id="logout" style="justify-self:start; margin-top:6px">Выйти из аккаунта</button>
         </div>
+        <div class="panel stack" id="botPanel"></div>
       </div>
     </div></section>
   </div>
@@ -425,7 +430,7 @@ function setPlan(p) { TAR.current = p; saveTar(); refreshPlan(); }
 function refreshPlan() {
   $("#planChip").textContent = PLAN_NAMES[TAR.current];
   renderSpreadList(); updateSetup(); renderPlans(); renderHistory(); renderLib();
-  $("#tgBtn").innerHTML = can("notify") ? "Привязать Telegram" : "Привязать Telegram <span class='lock'>🔒 по подписке</span>";
+  renderBot();
   if (S.screen === "result") renderResult();
 }
 
@@ -457,7 +462,7 @@ function show(name) {
   });
   S.screen = name;
   const tab = ORDER.includes(name) ? "spreads" : name;
-  $$("nav.tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === tab));
+  $$("#menu button").forEach(b => b.setAttribute("aria-current", b.dataset.tab === tab ? "page" : "false"));
   $$("#sc-" + name + " .pane").forEach(p => p.scrollTop = 0);
   if (name === "table") requestAnimationFrame(fitBoard);
 }
@@ -466,7 +471,12 @@ function goTab(t) {
   else show(t);
   if (t === "hist") renderHistory();
 }
-$$("nav.tabs button").forEach(b => b.addEventListener("click", () => goTab(b.dataset.tab)));
+const burger = $("#burger"), menu = $("#menu");
+function setMenu(open) { menu.hidden = !open; burger.setAttribute("aria-expanded", String(open)); }
+burger.addEventListener("click", e => { e.stopPropagation(); setMenu(menu.hidden); });
+document.addEventListener("click", e => { if (!menu.hidden && !menu.contains(e.target)) setMenu(false); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !menu.hidden) { setMenu(false); burger.focus(); } });
+$$("#menu button").forEach(b => b.addEventListener("click", () => { setMenu(false); goTab(b.dataset.tab); }));
 $("#userChip").addEventListener("click", () => goTab("sub"));
 function setAccent(a) {
   if (a === "gold") document.documentElement.removeAttribute("data-accent"); else document.documentElement.setAttribute("data-accent", a);
@@ -752,11 +762,55 @@ function renderPlans() {
 $("#resetPlans").addEventListener("click", () => { TAR.matrix = clone(DEFAULT_MATRIX); saveTar(); refreshPlan(); toast("Начальные тарифы возвращены"); });
 
 /* ================= профиль ================= */
-$("#tgBtn").addEventListener("click", () => { if (!can("notify")) return openUpsell("notify", "Уведомления в Telegram"); toast("Привязку Telegram подключим вместе с ботом"); });
+/* Telegram-бот: часовой пояс определяется сам (как в Help: браузер отдаёт его при входе), поэтому спрашиваем только время отправки в формате AM/PM. */
+const BOTK = "tarot_bot_v1";
+const BOT = Object.assign({ on: false, h: 8, m: 0, ap: "AM" }, store.get(BOTK, {}));
+const saveBot = () => store.set(BOTK, BOT);
+const botTime = () => `${BOT.h}:${String(BOT.m).padStart(2, "0")} ${BOT.ap}`;
+function renderBot() {
+  const box = $("#botPanel"), ok = can("notify");
+  box.innerHTML = BOT.on
+    ? `<h3>Telegram-бот</h3><p style="margin:0"><span class="saved">✓ Бот подключён</span></p>
+       <p class="lead" style="margin:0">Присылает карту дня в <b>${botTime()}</b> по вашему времени.</p>
+       <div style="display:flex; gap:8px; flex-wrap:wrap"><button class="btn ghost small" id="botEdit">Изменить время</button><button class="btn ghost small" id="botOff">Отключить</button></div>
+       <p class="hint" style="text-align:left">Часовой пояс определяется сам по вашему устройству, его не нужно вводить.</p>`
+    : `<h3>Telegram-бот</h3><p class="lead" style="margin:0">Бот напомнит, что расклад готов, и позовёт вернуться в кабинет. Карту дня он присылает в удобное вам время.</p>
+       <button class="btn" id="botConnect" style="justify-self:start">${ok ? "Подключить бота" : "🔒 Доступно по подписке"}</button>
+       <p class="hint" style="text-align:left">Часовой пояс определяется сам по вашему устройству, его не нужно вводить.</p>`;
+  const on = (id, fn) => { const el = $(id); if (el) el.addEventListener("click", fn); };
+  on("#botConnect", () => ok ? openBot(false) : openUpsell("notify", "Уведомления в Telegram"));
+  on("#botEdit", () => openBot(true));
+  on("#botOff", () => { BOT.on = false; saveBot(); renderBot(); toast("Бот отключён"); });
+}
+function openBot(editOnly) {
+  const sh = $("#sheet"); sh.className = "sheet narrow";
+  const code = String(100000 + rnd(900000)).replace(/(\d{3})(\d{3})/, "$1 $2");
+  const hs = Array.from({ length: 12 }, (_, i) => `<option value="${i + 1}"${BOT.h === i + 1 ? " selected" : ""}>${i + 1}</option>`).join("");
+  const ms = Array.from({ length: 12 }, (_, i) => i * 5).map(m => `<option value="${m}"${BOT.m === m ? " selected" : ""}>${String(m).padStart(2, "0")}</option>`).join("");
+  sh.innerHTML = `<button class="icon-btn close" aria-label="Закрыть">✕</button>
+    <h2 style="font-size:28px">${editOnly ? "Время отправки" : "Подключение бота"}</h2>
+    ${editOnly ? "" : `<div class="panel" style="display:grid; gap:6px"><span class="tag" style="justify-self:start">Шаг 1</span>
+      <p style="margin:0">Откройте в Telegram бота <b>@TaroNotifier_bot</b> (пример) и нажмите Start. Отправьте ему код: <b style="color:var(--accent); letter-spacing:.08em">${code}</b></p>
+      <p class="hint" style="text-align:left">Код действует 10 минут. В прототипе бот не подключается по-настоящему.</p></div>
+      <span class="tag" style="justify-self:start">Шаг 2</span>`}
+    <p style="margin:0">Когда присылать карту дня?</p>
+    <div class="timepick"><select id="tpH" aria-label="Часы">${hs}</select><span>:</span><select id="tpM" aria-label="Минуты">${ms}</select>
+      <div class="seg" role="group" aria-label="До или после полудня"><button data-ap="AM" aria-pressed="${BOT.ap === "AM"}">AM</button><button data-ap="PM" aria-pressed="${BOT.ap === "PM"}">PM</button></div></div>
+    <p class="hint" style="text-align:left">Время по вашим часам. Часовой пояс определяется автоматически.</p>
+    <button class="btn" id="botSave" style="justify-self:start">${editOnly ? "Сохранить" : "Подключить (демо)"}</button>`;
+  let ap = BOT.ap;
+  $$(".seg button", sh).forEach(b => b.addEventListener("click", () => { ap = b.dataset.ap; $$(".seg button", sh).forEach(x => x.setAttribute("aria-pressed", x.dataset.ap === ap)); }));
+  $(".close", sh).addEventListener("click", closeSheet);
+  $("#botSave").addEventListener("click", () => {
+    BOT.h = +$("#tpH").value; BOT.m = +$("#tpM").value; BOT.ap = ap; BOT.on = true; saveBot(); closeSheet(); renderBot();
+    toast(editOnly ? "Время отправки сохранено" : "Бот подключён, карта дня придёт в " + botTime());
+  });
+  openOverlay();
+}
 $("#logout").addEventListener("click", () => toast("Выход из аккаунта подключим на этапе с базой"));
 
 /* ================= старт ================= */
 renderSpreadList(); updateSetup(); renderLib(); renderHistory(); renderPlans();
 $("#planChip").textContent = PLAN_NAMES[TAR.current];
-$("#tgBtn").innerHTML = can("notify") ? "Привязать Telegram" : "Привязать Telegram <span class='lock'>🔒 по подписке</span>";
+renderBot();
 </script>
