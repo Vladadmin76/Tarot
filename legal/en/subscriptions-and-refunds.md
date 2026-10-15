@@ -17,13 +17,13 @@ Cancel at any time, online, in the same place you subscribed: **Menu → Subscri
 For yearly plans we will email you a reminder [15–45] days before renewal, with the price and how to cancel. We may also remind you of other renewals.
 
 ## 5. Free trials and introductory offers
-[Delete if not used.] If we offer a free trial or a reduced introductory price, we will show how long it lasts, the price that applies afterwards, and the date it converts to a paid subscription. Cancel before the trial ends to avoid being charged.
+We do not currently offer free trials. If we introduce a free trial or a reduced introductory price, we will show how long it lasts, the price that applies afterwards, and the date it converts to a paid subscription, and you can cancel before the trial ends to avoid being charged.
 
 ## 6. Refunds
-[OWNER TO CHOOSE ONE]
-- **Option A:** If you subscribe for the first time and ask for a refund within [7] days of your first payment, we will refund it, unless you have used a significant part of the paid features. Renewal payments are refundable within [3] days if you contact us at [SUPPORT EMAIL].
-- **Option B:** Payments are non-refundable except where required by law, or where we made an error (for example a double charge).
-In every case, we will refund charges made in error and unused amounts we are required to refund by law. To ask, write to [SUPPORT EMAIL] from your account email, with the date and amount of the charge. We usually reply within [3] business days. Refunds go back to the original payment method and may take several days to appear. If you bought through an app store, the store handles refunds under its rules.
+- **First payment.** If you subscribe for the first time and ask for a refund within **7 days** of your first payment, we will refund it, unless you have used a significant part of the paid features during that time.
+- **Renewal payments.** If a renewal charge surprises you, write to us within **3 days** of the charge and we will refund it.
+- **Mistakes.** We will always refund charges made in error (for example a double charge) and amounts we are required to refund by law.
+To ask for a refund, write to [SUPPORT EMAIL] from your account email, with the date and amount of the charge. We usually reply within [3] business days. Refunds go back to the original payment method and may take several days to appear. If you bought through an app store, the store handles refunds under its rules.
 
 ## 7. Price and plan changes
 If we raise the price of your plan, we will tell you by email at least [30] days before it takes effect, so you can cancel before the next renewal. If we remove a paid feature or end a plan, we will refund the unused part of what you prepaid.
