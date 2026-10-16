@@ -1,0 +1,21 @@
+{
+  "name": "tarot-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Серверная часть сайта «Таро»: Cloudflare Worker (Hono) + Neon Postgres",
+  "scripts": {
+    "test": "node --test test/",
+    "dev": "node dev.js",
+    "migrate": "node scripts/migrate.js"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.2.0",
+    "hono": "^4.13.13"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.10",
+    "@hono/node-server": "^2.1.5",
+    "wrangler": "^4.151.1"
+  }
+}

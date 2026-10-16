@@ -4,3 +4,5 @@ dist/
 node_modules/
 .dev.vars
 .wrangler/
+server/node_modules
+server/.data
