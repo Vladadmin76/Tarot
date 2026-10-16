@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Серверная часть сайта «Таро»: Cloudflare Worker (Hono) + Neon Postgres",
   "scripts": {
-    "test": "node --test test/",
+    "test": "node --test test/auth.test.js",
     "dev": "node dev.js",
     "migrate": "node scripts/migrate.js"
   },

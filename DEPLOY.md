@@ -37,3 +37,16 @@ npx wrangler@4 dev              # открывает сайт на http://localh
 6. Для новой карты (например, Башни): сжать, загрузить, добавить id в `content/live.json` (например, `major-16`), выполнить `python3 tools/build_prototype.py`, закоммитить.
 
 Для проверки без сайта положите папку `live/` рядом с `prototype/`: страница сначала ищет видео там.
+
+
+## Сервер входа (регистрация, пароль, почта)
+
+Код в `server/` (Hono). Проверка без Cloudflare и без внешних сервисов: `cd server && npm install && npm test` (12 тестов на локальной базе PGlite) и `npm run dev` (сервер на http://localhost:8787, письма печатаются в консоль, база в `server/.data`).
+
+Что нужно сделать владельцу, чтобы заработало на сайте:
+1. **Neon**: создать проект и базу, взять строку подключения. Применить миграции: `cd server && npm ci && DATABASE_URL='...' npm run migrate` (строку в чат не присылать).
+2. **Resend** (отправка писем): создать аккаунт, добавить домен `fixtorllc.com`, внести выданные DNS-записи в Cloudflare, создать API-ключ.
+3. **Секреты Worker** (`cd server && npx wrangler secret put <имя> --config ../wrangler.jsonc`, либо в панели Cloudflare → Worker `tarot` → Settings → Variables): `DATABASE_URL`, `RESEND_API_KEY`, `EMAIL_FROM` (например `Таро <noreply@fixtorllc.com>`), `ADMIN_USERNAMES` (до 5 логинов через запятую; пока не задан, администраторов нет). Открытая переменная `PUBLIC_URL` лежит в `wrangler.jsonc`.
+4. Деплой идёт сам после коммита в `main` (workflow ставит зависимости `server/`). До появления секретов `/api/auth/*` отвечает ошибкой, статика работает.
+
+Интерфейс (экраны входа и регистрации на сайте) пока не подключён к этому API, ссылки из писем ведут на готовые простые страницы `/confirm-email` и `/reset-password`.

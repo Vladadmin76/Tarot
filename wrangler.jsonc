@@ -1,6 +1,7 @@
 {
-  // Сайт «Таро» на Cloudflare Workers: пока только статика (прототип и колода), сервер добавим позже.
+  // Сайт «Таро» на Cloudflare Workers: статика (прототип и колода) и сервер входа (/api/auth, страницы из писем).
   "name": "tarot",
+  "main": "server/src/worker.js",
   "compatibility_date": "2026-09-01",
 
   // Адрес сайта. custom_domain создаёт привязку и DNS-запись сам при деплое,
@@ -12,7 +13,12 @@
   "preview_urls": false,
 
   // Раздаём собранную папку dist (её делает tools/build_site.sh).
-  "assets": { "directory": "./dist" },
+  // Запросы /api/* и страницы из писем сначала идут в код сервера, остальное отдаёт статика.
+  "assets": { "directory": "./dist", "run_worker_first": ["/api/*", "/confirm-email", "/reset-password"] },
+
+  // Открытые настройки. Секреты (не в этом файле, задаются командой wrangler secret put или в панели Cloudflare):
+  // DATABASE_URL (Neon), RESEND_API_KEY, EMAIL_FROM, ADMIN_USERNAMES (до 5 логинов через запятую).
+  "vars": { "PUBLIC_URL": "https://tarot.fixtorllc.com" },
 
   "observability": { "enabled": true }
 }
