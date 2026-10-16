@@ -69,11 +69,7 @@ export function authRoutes({ config, db, email }) {
     const lang = LANGS.includes(b.lang) ? b.lang : "ru";
     if (Math.random() < 0.02) cleanup(db).catch(() => {});
 
-    const existing = await byEmail(mail);
-    if (existing) { // не раскрываем, что почта занята: ответ такой же, а владельцу уходит письмо
-      await sendTemplate(email, "exists", existing, config.publicUrl);
-      return c.json({ ok: true, verify: "sent" });
-    }
+    if (await byEmail(mail)) return err(c, 409, "email_taken");
     if ((await db.query("SELECT 1 FROM users WHERE login_lower = $1", [login.toLowerCase()])).length) return err(c, 409, "login_taken");
     const hash = await hashPassword(b.password, config.pbkdf2Iterations);
     let u;
@@ -81,7 +77,7 @@ export function authRoutes({ config, db, email }) {
       u = (await db.query("INSERT INTO users (login, login_lower, email, email_lower, name, password_hash, lang, timezone, consent_at, consent_version) VALUES ($1,$2,$3,$4,$5,$6,$7,$8, now(), $9) RETURNING *",
         [login, login.toLowerCase(), mail, mail.toLowerCase(), name, hash, lang, checkTimezone(b.timezone), config.consentVersion]))[0];
     } catch (e) { // гонка двух одинаковых регистраций
-      if (/unique|duplicate/i.test(e.message)) return err(c, 409, "login_taken");
+      if (/unique|duplicate/i.test(e.message)) return err(c, 409, /email/i.test(e.message) ? "email_taken" : "login_taken");
       throw e;
     }
     await sendTemplate(email, "verify", u, verifyLink(await newToken(u.id, "verify", VERIFY_H)));

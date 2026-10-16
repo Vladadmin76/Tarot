@@ -69,14 +69,16 @@ test("проверка полей и согласия", async () => {
   assert.equal((await s.db.query("SELECT count(*)::int n FROM users"))[0].n, 0);
 });
 
-test("занятый логин: 409; занятая почта не раскрывается", async () => {
+test("занятый логин и занятая почта: прямые ошибки, аккаунт не создаётся", async () => {
   const s = await setup();
   await s.call("POST", "/api/auth/register", reg);
-  assert.equal((await s.call("POST", "/api/auth/register", { ...reg, email: "other@example.com" })).json.error, "login_taken");
-  assert.equal((await s.call("POST", "/api/auth/register", { ...reg, login: "Bob", email: "ALICE@example.com" })).status, 200);
-  assert.equal(s.email.outbox.at(-1).to, "alice@example.com");
-  assert.match(s.email.outbox.at(-1).subject, /уже есть/);
+  const sent = s.email.outbox.length;
+  const l = await s.call("POST", "/api/auth/register", { ...reg, email: "other@example.com" });
+  assert.equal(l.status, 409); assert.equal(l.json.error, "login_taken");
+  const e = await s.call("POST", "/api/auth/register", { ...reg, login: "Bob", email: "ALICE@example.com" });
+  assert.equal(e.status, 409); assert.equal(e.json.error, "email_taken");
   assert.equal((await s.db.query("SELECT count(*)::int n FROM users"))[0].n, 1);
+  assert.equal(s.email.outbox.length, sent, "лишних писем нет");
 });
 
 async function verified(s, over = {}) {
