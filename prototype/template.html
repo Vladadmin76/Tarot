@@ -223,6 +223,16 @@ table.matrix { border-collapse: collapse; width: 100%; min-width: 560px; font-si
 .block.locked p { color: var(--muted); }
 .pic img.zoomable { cursor: pointer; }
 .zoom { position: fixed; inset: 0; z-index: 90; cursor: pointer; touch-action: manipulation; }
+.zoom video { position: absolute; border-radius: 12px; display: block; opacity: 0; transition: opacity .25s; background: #000; }
+.zoom video.on { opacity: 1; }
+.peek { position: fixed; inset: 0; z-index: 85; display: grid; place-items: center; pointer-events: none; }
+.peek.sticky { pointer-events: auto; cursor: pointer; background: #04030c99; }
+.peek img { height: min(82vh, calc(90vw * 1.5)); aspect-ratio: 2 / 3; border-radius: 12px; box-shadow: 0 20px 60px #000c; animation: peekin .18s ease-out; }
+.peek img.rev { transform: rotate(180deg); }
+@keyframes peekin { from { opacity: 0; transform: scale(.94); } }
+.peek img.rev { animation-name: peekinr; }
+@keyframes peekinr { from { opacity: 0; transform: rotate(180deg) scale(.94); } }
+.row img { cursor: zoom-in; }
 .zoom img { position: absolute; border-radius: 12px; box-shadow: 0 20px 60px #000c; will-change: transform; display: block; }
 .muted { color: var(--muted); font-size: 13px; }
 .urows { display: grid; gap: 8px; }
@@ -598,6 +608,23 @@ const getHist = () => store.get(HK, []);
 const setHist = h => store.set(HK, h.slice(0, 300));
 function visibleHist() { const h = getHist(), l = limit("history.limit"); return Number.isFinite(l) ? h.slice(0, l) : h; }
 
+/* ================= крупный просмотр карты на столе и в разборе (без видео) ================= */
+// Компьютер: пока курсор на карте, она показана крупно. Телефон: нажатие показывает, повторное нажатие закрывает.
+const TOUCH = matchMedia("(hover: none)").matches;
+let PEEK = null;
+function showPeek(src, rev, sticky) {
+  hidePeek();
+  const el = document.createElement("div"); el.className = "peek" + (sticky ? " sticky" : "");
+  el.innerHTML = `<img class="${rev ? "rev" : ""}" src="${src}" alt="">`;
+  if (sticky) el.addEventListener("click", hidePeek);
+  document.body.appendChild(el); PEEK = el;
+}
+function hidePeek() { if (PEEK) { PEEK.remove(); PEEK = null; } }
+function bindPeek(el, getInfo) {
+  if (!TOUCH) { el.addEventListener("mouseenter", () => { const x = getInfo(); if (x) showPeek(x.src, x.rev, false); }); el.addEventListener("mouseleave", hidePeek); }
+}
+document.addEventListener("keydown", e => { if (e.key === "Escape") hidePeek(); });
+
 /* ================= шаг 2: стол ================= */
 function fitBoard() {
   const r = S.reading; if (!r) return;
@@ -621,14 +648,19 @@ function renderBoard() {
       ${sp.pos.length > 1 ? `<span class="badge">${i + 1}</span>` : ""}${sp.caption ? `<span class="cap">${esc(p.name)}</span>` : ""}
     </div>`;
   }).join("");
-  $$(".card", b).forEach(el => el.addEventListener("click", () => onCard(+el.dataset.i)));
+  $$(".card", b).forEach(el => {
+    el.addEventListener("click", () => onCard(+el.dataset.i));
+    bindPeek(el, () => { const i = +el.dataset.i; if (!r.open[i]) return null; const k = r.cards[i]; return { src: fullSrc(BY_ID[k.id]), rev: k.rev && !sp.pos[i].cross }; });
+  });
   fitBoard();
 }
 function onCard(i) {
   const r = S.reading;
   if (!r.open[i]) { r.open[i] = true; $$(".card")[i].classList.add("flipped"); afterFlip(); }
-  else openCard(r.cards[i].id, r.cards[i].rev, SP(r.spread).pos[i].name);
+  else if (TOUCH) { const k = r.cards[i]; showPeek(fullSrc(BY_ID[k.id]), k.rev, true); }
+  else { hidePeek(); openCard(r.cards[i].id, r.cards[i].rev, SP(r.spread).pos[i].name); }
 }
+function fullSrc(c) { return fullBase >= 0 ? FULL_BASES[fullBase] + c.f : c.img; }
 function verdictHTML(r) {
   const yes = !r.cards[0].rev;
   return { cls: "verdict" + (yes ? "" : " no"), html: `<b>${yes ? "Да" : "Нет"}</b><span class="lead">${yes ? "Карта выпала прямо." : "Карта выпала перевёрнутой."}</span>` };
@@ -690,6 +722,12 @@ function renderResult() {
       <button class="btn ghost small" data-open="${i}">Подробнее</button></div>`;
   }).join("");
   $$("[data-open]").forEach(b => b.addEventListener("click", () => { const i = +b.dataset.open; openCard(r.cards[i].id, r.cards[i].rev, sp.pos[i].name); }));
+  $$("#rows .row > img").forEach((im, i) => {
+    const k = r.cards[i], c = BY_ID[k.id];
+    im.addEventListener("click", () => { if (TOUCH) showPeek(fullSrc(c), k.rev, true); });
+    bindPeek(im, () => ({ src: fullSrc(c), rev: k.rev }));
+    loadFull(c, () => {});
+  });
   renderAI();
 }
 /* Демо ИИ-толкования: текст собран из значений карт. Настоящий DeepSeek подключим позже. */
@@ -784,6 +822,25 @@ function loadFull(card, done) {
   };
   tryAt(fullBase >= 0 ? fullBase : 0);
 }
+// Живая карта: видео без звука, один раз. Лежит в хранилище R2 (live.fixtorllc.com), для проверки без сайта берётся из папки live рядом со страницей.
+const LIVE_REMOTE = "https://live.fixtorllc.com/";
+const LIVE_BASES = /(^|\.)fixtorllc\.com$/.test(location.hostname) ? [LIVE_REMOTE] : ["../live/", "live/", LIVE_REMOTE];
+function playLive(card, layer, img, left, top, w, h) {
+  const v = document.createElement("video");
+  v.muted = true; v.playsInline = true; v.loop = false; v.controls = false; v.preload = "auto";
+  v.setAttribute("muted", ""); v.setAttribute("playsinline", ""); v.disablePictureInPicture = true;
+  v.style.cssText = `left:${left}px; top:${top}px; width:${w}px; height:${h}px`;
+  let i = 0, ready = false, waited = false;
+  const go = () => {
+    if (!ready || !waited || !ZOOM || ZOOM.layer !== layer) return;
+    v.play().then(() => v.classList.add("on")).catch(() => {});
+  };
+  v.addEventListener("canplay", () => { ready = true; go(); }, { once: true });
+  v.addEventListener("error", () => { if (++i < LIVE_BASES.length) { v.src = LIVE_BASES[i] + card.id + ".mp4"; v.load(); } });
+  setTimeout(() => { waited = true; go(); }, 420);  // ждём, пока карта встанет ровно
+  v.src = LIVE_BASES[0] + card.id + ".mp4";
+  layer.appendChild(v);
+}
 function openZoom(card, rev, pic) {
   if (ZOOM) return;
   const r0 = pic.getBoundingClientRect(), m = innerWidth < 640 ? 6 : 16;
@@ -802,6 +859,7 @@ function openZoom(card, rev, pic) {
     img.style.transform = "translate(0px, 0px) scale(1) rotate(0deg)";
   }));
   loadFull(card, src => { if (ZOOM && ZOOM.img === img) img.src = src; });
+  if (card.v) playLive(card, layer, img, left, top, w, h);
   layer.addEventListener("click", () => closeZoom());
 }
 function closeZoom(instant) {

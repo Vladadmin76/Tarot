@@ -70,10 +70,13 @@ def main():
 
     cards.sort(key=sort_key)
 
+    live = set(json.loads((ROOT / "content" / "live.json").read_text(encoding="utf-8")))
     data = []
     for c in cards:
         item = {"id": c["id"], "n": c["name_ru"], "a": c["arcana"],
                 "kw": c["keywords_ru"], "kr": c["keywords_reversed_ru"], "img": thumb(file_for(c["id"])), "f": file_for(c["id"]).name}
+        if c["id"] in live:
+            item["v"] = 1
         for pos, key in (("upright", "u"), ("reversed", "r")):
             d = c[pos]
             item[key] = {"e": d["essence"], "p": d["psychology"], **split_practice(d["practice"], c["id"])}

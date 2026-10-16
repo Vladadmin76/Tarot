@@ -6,3 +6,4 @@ node_modules/
 .wrangler/
 server/node_modules
 server/.data
+live/

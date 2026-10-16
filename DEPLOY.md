@@ -23,3 +23,17 @@
 bash tools/build_site.sh        # собирает dist
 npx wrangler@4 dev              # открывает сайт на http://localhost:8787
 ```
+
+
+## Живые карты (видео) в Cloudflare R2
+
+Видео не лежат в Git (около 2 МБ на карту). Они хранятся в R2 и отдаются с адреса `https://live.fixtorllc.com/major-NN.mp4`. Файлы, которые есть в хранилище, перечислены в `content/live.json`, эта страница показывает видео только для них.
+
+1. В Cloudflare: R2 → Create bucket → имя `tarot-live`.
+2. В настройках корзины: Custom Domains → Add → `live.fixtorllc.com`. Сертификат и DNS Cloudflare создаст сам.
+3. Токен API с правом «Workers R2 Storage: Edit» и номер аккаунта положить в переменные окружения (не в чат).
+4. Сжать исходники: `bash tools/compress_live.sh <папка с исходными видео>` (нужен ffmpeg), результат в `live/`.
+5. Загрузить: `bash tools/upload_live.sh`.
+6. Для новой карты (например, Башни): сжать, загрузить, добавить id в `content/live.json` (например, `major-16`), выполнить `python3 tools/build_prototype.py`, закоммитить.
+
+Для проверки без сайта положите папку `live/` рядом с `prototype/`: страница сначала ищет видео там.
