@@ -1,56 +1,23 @@
 import { Hono } from "hono";
-import { getCookie, setCookie, deleteCookie } from "hono/cookie";
-import { randomToken, sha256Hex, hashPassword, verifyPassword, dummyVerify } from "../crypto.js";
+import { getCookie, deleteCookie } from "hono/cookie";
+import { sha256Hex, hashPassword, verifyPassword, dummyVerify } from "../crypto.js";
+import { shared } from "../shared.js";
 import { checkLogin, checkEmail, checkName, checkPassword, checkTimezone, normLogin, normEmail, LANGS } from "../validate.js";
 import { tooMany, hit, cleanup } from "../ratelimit.js";
 import { sendTemplate } from "../email/index.js";
 
-const H = 3600, SESSION_DAYS = 30, VERIFY_H = 24, RESET_H = 1;
+const H = 3600, VERIFY_H = 24, RESET_H = 1;
 
 export function authRoutes({ config, db, email }) {
   const a = new Hono();
-  const cookieName = config.secureCookies ? "__Host-tarot_session" : "tarot_session";
-  const err = (c, status, error, extra = {}) => c.json({ error, ...extra }, status);
-  const ipOf = c => c.req.header("cf-connecting-ip") || (c.req.header("x-forwarded-for") || "").split(",")[0].trim() || "local";
-  const body = async c => { try { const b = await c.req.json(); return b && typeof b === "object" ? b : {}; } catch { return {}; } };
+  const { cookieName, err, ipOf, body, publicUser, newToken, startSession, currentUser, verifyLink, resetLink, guard } = shared({ config, db });
+  a.use("*", guard);
 
-  // Защита от подделки запросов с чужих сайтов: только JSON и только со своего адреса (плюс cookie SameSite=Lax).
-  a.use("*", async (c, next) => {
-    if (c.req.method !== "GET" && c.req.method !== "HEAD") {
-      if (!(c.req.header("content-type") || "").includes("application/json")) return err(c, 415, "json_only");
-      const o = c.req.header("origin");
-      if (o ? o !== config.origin : !config.dev) return err(c, 403, "bad_origin");
-    }
-    c.header("Cache-Control", "no-store");
-    await next();
-  });
-
-  const roleOf = u => config.admins.includes(u.login_lower) ? "admin" : u.role;
-  const publicUser = u => ({ id: Number(u.id), login: u.login, name: u.name, email: u.email, lang: u.lang, role: roleOf(u), emailVerified: !!u.email_verified_at, createdAt: u.created_at });
-
-  async function newToken(userId, kind, hours) {
-    const t = randomToken();
-    await db.query("INSERT INTO email_tokens (user_id, kind, token_hash, expires_at) VALUES ($1, $2, $3, now() + make_interval(hours => $4))", [userId, kind, await sha256Hex(t), hours]);
-    return t;
-  }
   const consume = async (token, kind) => {
     if (typeof token !== "string" || token.length < 20 || token.length > 100) return null;
     const r = await db.query("UPDATE email_tokens SET used_at = now() WHERE token_hash = $1 AND kind = $2 AND used_at IS NULL AND expires_at > now() RETURNING user_id", [await sha256Hex(token), kind]);
     return r[0] ? r[0].user_id : null;
   };
-  async function startSession(c, userId) {
-    const t = randomToken();
-    await db.query("INSERT INTO sessions (user_id, token_hash, user_agent, expires_at) VALUES ($1, $2, $3, now() + make_interval(days => $4))", [userId, await sha256Hex(t), (c.req.header("user-agent") || "").slice(0, 200), SESSION_DAYS]);
-    setCookie(c, cookieName, t, { httpOnly: true, secure: config.secureCookies, sameSite: "Lax", path: "/", maxAge: SESSION_DAYS * 86400 });
-  }
-  async function currentUser(c) {
-    const t = getCookie(c, cookieName);
-    if (!t) return null;
-    const r = await db.query("SELECT u.*, s.id AS session_id FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = $1 AND s.expires_at > now()", [await sha256Hex(t)]);
-    return r[0] || null;
-  }
-  const verifyLink = t => `${config.publicUrl}/confirm-email?token=${t}`;
-  const resetLink = t => `${config.publicUrl}/reset-password?token=${t}`;
   const byEmail = async e => (await db.query("SELECT * FROM users WHERE email_lower = $1", [e.toLowerCase()]))[0];
 
   // ---------- регистрация ----------
@@ -131,9 +98,11 @@ export function authRoutes({ config, db, email }) {
     const u = (await db.query("SELECT * FROM users WHERE login_lower = $1 OR email_lower = $1", [id]))[0];
     const ok = u ? await verifyPassword(b.password, u.password_hash) : await dummyVerify(b.password, config.pbkdf2Iterations);
     if (!ok) { await hit(db, "login:ip:" + ip); await hit(db, "login:id:" + id); return err(c, 401, "bad_credentials"); }
+    if (u.blocked_at) return err(c, 403, "account_blocked");
     if (!u.email_verified_at) return err(c, 403, "email_not_verified");
     const tz = checkTimezone(b.timezone);
     if (tz && tz !== u.timezone) { await db.query("UPDATE users SET timezone = $2 WHERE id = $1", [u.id, tz]); u.timezone = tz; }
+    await db.query("UPDATE users SET last_login_at = now() WHERE id = $1", [u.id]);
     await startSession(c, u.id);
     return c.json({ ok: true, user: publicUser(u) });
   });
