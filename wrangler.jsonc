@@ -6,7 +6,7 @@
 
   // Адрес сайта. custom_domain создаёт привязку и DNS-запись сам при деплое,
   // поэтому запись tarot вручную в DNS создавать НЕ нужно (иначе деплой выдаст ошибку).
-  "routes": [{ "pattern": "tarot.fixtorllc.com", "custom_domain": true }],
+  "routes": [{ "pattern": "kosmalis.com", "custom_domain": true }],
 
   // Второй публичный адрес (*.workers.dev) и превью-адреса не нужны.
   "workers_dev": false,
@@ -18,7 +18,7 @@
 
   // Открытые настройки. Секреты (не в этом файле, задаются командой wrangler secret put или в панели Cloudflare):
   // DATABASE_URL (Neon), RESEND_API_KEY, EMAIL_FROM, ADMIN_USERNAMES (до 5 логинов через запятую).
-  "vars": { "PUBLIC_URL": "https://tarot.fixtorllc.com" },
+  "vars": { "PUBLIC_URL": "https://kosmalis.com" },
 
   "observability": { "enabled": true }
 }

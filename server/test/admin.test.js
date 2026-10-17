@@ -6,7 +6,7 @@ import { localDb } from "../src/db-local.js";
 import { consoleProvider } from "../src/email/index.js";
 import { hashPassword } from "../src/crypto.js";
 
-const ORIGIN = "https://tarot.fixtorllc.com", PW = "correct horse battery";
+const ORIGIN = "https://kosmalis.com", PW = "correct horse battery";
 async function setup() {
   const config = loadConfig({ PUBLIC_URL: ORIGIN, ADMIN_USERNAMES: "boss", PBKDF2_ITERATIONS: "1000" });
   const db = await localDb(), email = consoleProvider({ silent: true }), app = createApp({ config, db, email });

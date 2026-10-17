@@ -1,15 +1,15 @@
-# Как опубликовать сайт на tarot.fixtorllc.com
+# Как опубликовать сайт на kosmalis.com
 
 Сайт публикуется сам: после каждого коммита в `main`, который меняет страницу, колоду или настройки, GitHub собирает папку `dist` и отправляет её в Cloudflare (`.github/workflows/deploy.yml`). Вручную нужно один раз подготовить доступ.
 
 ## Что сделать один раз (владелец)
 
-1. **Токен Cloudflare.** Cloudflare → My Profile → API Tokens → Create Token. Шаблон «Edit Cloudflare Workers» плюс права `Zone → DNS → Edit` и `Zone → Workers Routes → Edit` для зоны `fixtorllc.com`. Скопируйте токен (он показывается один раз).
+1. **Токен Cloudflare.** Cloudflare → My Profile → API Tokens → Create Token. Шаблон «Edit Cloudflare Workers» плюс права `Zone → DNS → Edit` и `Zone → Workers Routes → Edit` для зоны `kosmalis.com` (домен куплен в Cloudflare, зона создана автоматически). Скопируйте токен (он показывается один раз).
 2. **Номер аккаунта.** Cloudflare → Workers & Pages → справа «Account ID».
 3. **Секреты в GitHub.** Репозиторий → Settings → Secrets and variables → Actions → New repository secret:
    - `CLOUDFLARE_API_TOKEN` — токен из п. 1;
    - `CLOUDFLARE_ACCOUNT_ID` — номер из п. 2.
-4. **Запуск.** Репозиторий → Actions → «Deploy to Cloudflare» → Run workflow. Через пару минут сайт появится на https://tarot.fixtorllc.com.
+4. **Запуск.** Репозиторий → Actions → «Deploy to Cloudflare» → Run workflow. Через пару минут сайт появится на https://kosmalis.com.
 
 Токены и ключи нигде не присылайте в чат, только в секреты GitHub.
 
@@ -27,10 +27,10 @@ npx wrangler@4 dev              # открывает сайт на http://localh
 
 ## Живые карты (видео) в Cloudflare R2
 
-Видео не лежат в Git (около 2 МБ на карту). Они хранятся в R2 и отдаются с адреса `https://live.fixtorllc.com/major-NN.mp4`. Файлы, которые есть в хранилище, перечислены в `content/live.json`, эта страница показывает видео только для них.
+Видео не лежат в Git (около 2 МБ на карту). Они хранятся в R2 и отдаются с адреса `https://live.kosmalis.com/major-NN.mp4`. Файлы, которые есть в хранилище, перечислены в `content/live.json`, эта страница показывает видео только для них.
 
 1. В Cloudflare: R2 → Create bucket → имя `tarot-live`.
-2. В настройках корзины: Custom Domains → Add → `live.fixtorllc.com`. Сертификат и DNS Cloudflare создаст сам.
+2. В настройках корзины: Custom Domains → Add → `live.kosmalis.com`. Сертификат и DNS Cloudflare создаст сам.
 3. Токен API с правом «Workers R2 Storage: Edit» и номер аккаунта положить в переменные окружения (не в чат).
 4. Сжать исходники: `bash tools/compress_live.sh <папка с исходными видео>` (нужен ffmpeg), результат в `live/`.
 5. Загрузить: `bash tools/upload_live.sh`.
@@ -45,8 +45,8 @@ npx wrangler@4 dev              # открывает сайт на http://localh
 
 Что нужно сделать владельцу, чтобы заработало на сайте:
 1. **Neon**: создать проект и базу, взять строку подключения. Применить миграции: `cd server && npm ci && DATABASE_URL='...' npm run migrate` (строку в чат не присылать).
-2. **Resend** (отправка писем): создать аккаунт, добавить домен `fixtorllc.com`, внести выданные DNS-записи в Cloudflare, создать API-ключ.
-3. **Секреты Worker** (`cd server && npx wrangler secret put <имя> --config ../wrangler.jsonc`, либо в панели Cloudflare → Worker `tarot` → Settings → Variables): `DATABASE_URL`, `RESEND_API_KEY`, `EMAIL_FROM` (например `Таро <noreply@fixtorllc.com>`), `ADMIN_USERNAMES` (до 5 логинов через запятую; пока не задан, администраторов нет). Открытая переменная `PUBLIC_URL` лежит в `wrangler.jsonc`.
+2. **Resend** (отправка писем): создать аккаунт, добавить домен `kosmalis.com`, внести выданные DNS-записи в Cloudflare, создать API-ключ.
+3. **Секреты Worker** (`cd server && npx wrangler secret put <имя> --config ../wrangler.jsonc`, либо в панели Cloudflare → Worker `tarot` → Settings → Variables): `DATABASE_URL`, `RESEND_API_KEY`, `EMAIL_FROM` (например `Kosmalis <noreply@kosmalis.com>`), `ADMIN_USERNAMES` (до 5 логинов через запятую; пока не задан, администраторов нет). Открытая переменная `PUBLIC_URL` лежит в `wrangler.jsonc`.
 4. Деплой идёт сам после коммита в `main` (workflow ставит зависимости `server/`). До появления секретов `/api/auth/*` отвечает ошибкой, статика работает.
 
 Интерфейс (экраны входа и регистрации на сайте) пока не подключён к этому API, ссылки из писем ведут на готовые простые страницы `/confirm-email` и `/reset-password`.

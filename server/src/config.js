@@ -10,7 +10,7 @@ export function loadConfig(env = {}) {
     secureCookies: publicUrl.startsWith("https://"),
     dev: env.ENV === "dev",
     admins,
-    emailFrom: env.EMAIL_FROM || "Таро <noreply@fixtorllc.com>",
+    emailFrom: env.EMAIL_FROM || "Kosmalis <noreply@kosmalis.com>",
     resendKey: env.RESEND_API_KEY || "",
     databaseUrl: env.DATABASE_URL || "",
     consentVersion: env.CONSENT_VERSION || "2026-10",

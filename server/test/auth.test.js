@@ -5,7 +5,7 @@ import { loadConfig } from "../src/config.js";
 import { localDb } from "../src/db-local.js";
 import { consoleProvider } from "../src/email/index.js";
 
-const ORIGIN = "https://tarot.fixtorllc.com";
+const ORIGIN = "https://kosmalis.com";
 async function setup(extra = {}) {
   const config = loadConfig({ PUBLIC_URL: ORIGIN, ADMIN_USERNAMES: "Boss, second", PBKDF2_ITERATIONS: "1000", ...extra });
   const db = await localDb();

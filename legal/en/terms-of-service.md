@@ -4,7 +4,7 @@ DRAFT. Not reviewed by a lawyer. Fill in the bracketed items before use.
 
 Effective date: [EFFECTIVE DATE]
 
-These Terms of Service ("Terms") are an agreement between you and [COMPANY LEGAL NAME], a California [entity type] located at [COMPANY ADDRESS] ("we", "us", "our"). They govern your use of [SERVICE NAME] at [DOMAIN], our Telegram bots, and related services (together, the "Service"). Please read them. If you do not agree, do not use the Service.
+These Terms of Service ("Terms") are an agreement between you and [COMPANY LEGAL NAME], a California [entity type] located at [COMPANY ADDRESS] ("we", "us", "our"). They govern your use of Kosmalis at kosmalis.com, our Telegram bots, and related services (together, the "Service"). Please read them. If you do not agree, do not use the Service.
 
 ## 1. Acceptance of these Terms
 By creating an account, ticking the agreement box, paying for a subscription, or otherwise using the Service, you agree to these Terms, our Privacy Policy, and our Subscriptions and Refunds Policy. These documents together are the whole agreement between us about the Service.

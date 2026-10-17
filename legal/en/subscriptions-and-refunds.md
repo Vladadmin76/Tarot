@@ -11,7 +11,7 @@ We offer free features and paid plans, shown with their features and prices in U
 Paid plans are subscriptions. **Your subscription will renew automatically at the end of each billing period (monthly or yearly, as you chose) at the price shown at checkout, until you cancel.** Your payment method will be charged at each renewal. Before you pay we will show these terms next to the button that starts your subscription, and we will ask you to confirm them (for example, with a checkbox). After you subscribe we will email you a confirmation that includes the price, billing period, renewal date, and how to cancel.
 
 ## 3. How to cancel
-Cancel at any time, online, in the same place you subscribed: **Menu → Subscription → Cancel subscription** at [DOMAIN]. [If you subscribed via Telegram: send /cancel to the bot, or use Telegram's subscription management.] You do not need to contact us or call anyone. Cancellation stops future charges; you keep access until the end of the period you already paid for. Deleting your account, deleting the app, or deleting the bot chat does not cancel a subscription. Cancel first.
+Cancel at any time, online, in the same place you subscribed: **Menu → Subscription → Cancel subscription** at kosmalis.com. [If you subscribed via Telegram: send /cancel to the bot, or use Telegram's subscription management.] You do not need to contact us or call anyone. Cancellation stops future charges; you keep access until the end of the period you already paid for. Deleting your account, deleting the app, or deleting the bot chat does not cancel a subscription. Cancel first.
 
 ## 4. Reminders
 For yearly plans we will email you a reminder [15–45] days before renewal, with the price and how to cancel. We may also remind you of other renewals.

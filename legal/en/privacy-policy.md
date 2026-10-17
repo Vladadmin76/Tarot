@@ -4,7 +4,7 @@ DRAFT. Not reviewed by a lawyer. Fill in the bracketed items before use.
 
 Effective date: [EFFECTIVE DATE]. Last updated: [EFFECTIVE DATE].
 
-This Privacy Policy explains how [COMPANY LEGAL NAME] ("we", "us") collects, uses, and shares information when you use [SERVICE NAME] at [DOMAIN], our Telegram bots, and related services (the "Service"). We are located at [COMPANY ADDRESS]. Contact: [SUPPORT EMAIL].
+This Privacy Policy explains how [COMPANY LEGAL NAME] ("we", "us") collects, uses, and shares information when you use Kosmalis at kosmalis.com, our Telegram bots, and related services (the "Service"). We are located at [COMPANY ADDRESS]. Contact: [SUPPORT EMAIL].
 
 ## 1. Information we collect
 
