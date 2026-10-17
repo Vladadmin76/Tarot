@@ -48,7 +48,7 @@ export function adminRoutes({ config, db, email }) {
   async function log(c, t, action, details) {
     const { u, role } = c.get("actor");
     await db.query("INSERT INTO admin_log (actor_id, actor_login, actor_role, target_id, target_login, action, details) VALUES ($1,$2,$3,$4,$5,$6,$7)",
-      [u.id, u.login, role, t.id, t.login, action, details ? JSON.stringify(details) : null]);
+      [u.id, u.login, role, t ? t.id : null, t ? t.login : null, action, details ? JSON.stringify(details) : null]);
   }
   // Администратора (из секрета) не трогает никто, кроме него самого.
   const protectedTarget = (c, t) => roleOf(t) === "admin" || t.id === c.get("actor").u.id;
@@ -144,6 +144,30 @@ export function adminRoutes({ config, db, email }) {
     await db.query("UPDATE users SET role = $2, helper_level = $3 WHERE id = $1", [t.id, b.role, level]);
     await log(c, t, "set_role", { role: b.role, level });
     return c.json({ ok: true });
+  });
+
+  // ---- удаление аккаунтов: только администратор ----
+  // Аккаунт, сессии и токены удаляются сразу; запись в журнале остаётся (с логином). Администраторов и себя удалить нельзя.
+  a.post("/users/:id/delete", async c => {
+    const bad = need(c, "delete_users"); if (bad) return bad;
+    const t = await target(c); if (!t) return err(c, 404, "not_found");
+    if (protectedTarget(c, t)) return err(c, 403, "protected");
+    if ((await body(c)).confirm !== t.login) return err(c, 400, "confirm_mismatch"); // нужно ввести логин удаляемого
+    await db.query("DELETE FROM users WHERE id = $1", [t.id]);
+    await log(c, { id: null, login: t.login }, "delete_user", { email: t.email, role: roleOf(t) });
+    return c.json({ ok: true });
+  });
+
+  // Массовая очистка (например, перед запуском удалить тестовых пользователей). Администраторы из секрета остаются всегда.
+  // По умолчанию помощники тоже остаются; includeHelpers: true удаляет и их. Нужно прислать confirm: "DELETE ALL USERS".
+  a.post("/purge-users", async c => {
+    const bad = need(c, "delete_users"); if (bad) return bad;
+    const b = await body(c);
+    if (b.confirm !== "DELETE ALL USERS") return err(c, 400, "confirm_mismatch");
+    const roles = b.includeHelpers === true ? ["user", "helper"] : ["user"];
+    const r = await db.query("DELETE FROM users WHERE role = ANY($1::text[]) AND login_lower <> ALL($2::text[]) RETURNING id", [roles, config.admins]);
+    await log(c, null, "purge_users", { deleted: r.length, includeHelpers: b.includeHelpers === true });
+    return c.json({ ok: true, deleted: r.length });
   });
 
   // ---- журнал: свои записи; старший помощник видит записи помощников; администратор всё ----

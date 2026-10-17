@@ -6,7 +6,7 @@ import { localDb } from "../src/db-local.js";
 import { consoleProvider } from "../src/email/index.js";
 import { hashPassword } from "../src/crypto.js";
 
-const ORIGIN = "https://kosmalis.com", PW = "correct horse battery";
+const ORIGIN = "https://test.kosmalis.com", PW = "correct horse battery";
 async function setup() {
   const config = loadConfig({ PUBLIC_URL: ORIGIN, ADMIN_USERNAMES: "boss", PBKDF2_ITERATIONS: "1000" });
   const db = await localDb(), email = consoleProvider({ silent: true }), app = createApp({ config, db, email });
@@ -129,4 +129,32 @@ test("справочник и поиск со спецсимволами", async
   assert.ok(m.can.includes("block") && !m.can.includes("manage_roles"));
   assert.deepEqual((await c.call("GET", "/api/admin/users?q=a_b")).json.users.map(u => u.login), ["a_b"], "_ не подстановка");
   assert.equal((await c.call("GET", "/api/admin/users?q=%25")).json.total, 0);
+});
+
+test("удаление аккаунта: только администратор, с вводом логина, журнал остаётся", async () => {
+  const s = await setup(); await s.add("boss"); await s.add("sen", { role: "helper", level: 3 });
+  const t = await s.add("victim"); const v = await s.as("victim");
+  const boss = await s.as("boss"), sen = await s.as("sen");
+  assert.equal((await sen.call("POST", `/api/admin/users/${t}/delete`, { confirm: "victim" })).status, 403, "даже старший помощник не удаляет");
+  assert.equal((await boss.call("POST", `/api/admin/users/${t}/delete`, { confirm: "wrong" })).json.error, "confirm_mismatch");
+  assert.equal((await boss.call("POST", `/api/admin/users/${t}/delete`, { confirm: "victim" })).status, 200);
+  assert.equal((await s.db.query("SELECT count(*)::int n FROM users WHERE login='victim'"))[0].n, 0);
+  assert.equal((await v.call("GET", "/api/auth/me")).status, 401);
+  const e = (await boss.call("GET", "/api/admin/log")).json.entries[0];
+  assert.equal(e.action, "delete_user"); assert.equal(e.target, "victim"); assert.equal(e.targetId, null);
+  const bossId = (await s.db.query("SELECT id FROM users WHERE login='boss'"))[0].id;
+  assert.equal((await boss.call("POST", `/api/admin/users/${bossId}/delete`, { confirm: "boss" })).status, 403, "себя нельзя");
+});
+
+test("массовая очистка: администраторы и помощники остаются, нужно подтверждение", async () => {
+  const s = await setup(); await s.add("boss"); await s.add("hlp", { role: "helper", level: 1 });
+  for (const n of ["u1", "u2", "u3"]) await s.add(n);
+  const boss = await s.as("boss"), sen = await s.as("hlp");
+  assert.equal((await sen.call("POST", "/api/admin/purge-users", { confirm: "DELETE ALL USERS" })).status, 403);
+  assert.equal((await boss.call("POST", "/api/admin/purge-users", {})).json.error, "confirm_mismatch");
+  assert.equal((await boss.call("POST", "/api/admin/purge-users", { confirm: "DELETE ALL USERS" })).json.deleted, 3);
+  assert.deepEqual((await s.db.query("SELECT login FROM users ORDER BY login")).map(r => r.login), ["boss", "hlp"]);
+  assert.equal((await boss.call("POST", "/api/admin/purge-users", { confirm: "DELETE ALL USERS", includeHelpers: true })).json.deleted, 1);
+  assert.deepEqual((await s.db.query("SELECT login FROM users")).map(r => r.login), ["boss"]);
+  assert.equal((await boss.call("GET", "/api/admin/log")).json.entries[0].action, "purge_users");
 });

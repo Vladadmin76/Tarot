@@ -3,7 +3,7 @@ const L1 = ["view", "log_own"];
 const L2 = [...L1, "send_verify", "send_reset"];
 const L3 = [...L2, "see_payments", "change_email", "block", "log_helpers"];
 const LEVELS = { 1: L1, 2: L2, 3: L3 };
-export const ADMIN_ONLY = ["manage_roles", "log_all"];
+export const ADMIN_ONLY = ["manage_roles", "log_all", "delete_users"];
 export const ALL = [...L3, ...ADMIN_ONLY];
 
 export function permsOf(role, level) {

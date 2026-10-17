@@ -1,12 +1,12 @@
 {
-  // Сайт «Таро» на Cloudflare Workers: статика (прототип и колода) и сервер входа (/api/auth, страницы из писем).
-  "name": "tarot",
+  // Сайт Kosmalis на Cloudflare Workers (пока тестовый адрес test.kosmalis.com; основной kosmalis.com занят заставкой, см. wrangler.placeholder.jsonc): статика (прототип и колода) и сервер входа (/api/auth, страницы из писем).
+  "name": "kosmalis-app",
   "main": "server/src/worker.js",
   "compatibility_date": "2026-09-01",
 
   // Адрес сайта. custom_domain создаёт привязку и DNS-запись сам при деплое,
-  // поэтому запись tarot вручную в DNS создавать НЕ нужно (иначе деплой выдаст ошибку).
-  "routes": [{ "pattern": "kosmalis.com", "custom_domain": true }],
+  // поэтому запись test вручную в DNS создавать НЕ нужно (иначе деплой выдаст ошибку).
+  "routes": [{ "pattern": "test.kosmalis.com", "custom_domain": true }],
 
   // Второй публичный адрес (*.workers.dev) и превью-адреса не нужны.
   "workers_dev": false,
@@ -18,7 +18,7 @@
 
   // Открытые настройки. Секреты (не в этом файле, задаются командой wrangler secret put или в панели Cloudflare):
   // DATABASE_URL (Neon), RESEND_API_KEY, EMAIL_FROM, ADMIN_USERNAMES (до 5 логинов через запятую).
-  "vars": { "PUBLIC_URL": "https://kosmalis.com" },
+  "vars": { "PUBLIC_URL": "https://test.kosmalis.com" },
 
   "observability": { "enabled": true }
 }

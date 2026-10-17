@@ -1,4 +1,4 @@
-# Как опубликовать сайт на kosmalis.com
+# Как опубликовать сайт Kosmalis
 
 Сайт публикуется сам: после каждого коммита в `main`, который меняет страницу, колоду или настройки, GitHub собирает папку `dist` и отправляет её в Cloudflare (`.github/workflows/deploy.yml`). Вручную нужно один раз подготовить доступ.
 
@@ -50,3 +50,16 @@ npx wrangler@4 dev              # открывает сайт на http://localh
 4. Деплой идёт сам после коммита в `main` (workflow ставит зависимости `server/`). До появления секретов `/api/auth/*` отвечает ошибкой, статика работает.
 
 Интерфейс (экраны входа и регистрации на сайте) пока не подключён к этому API, ссылки из писем ведут на готовые простые страницы `/confirm-email` и `/reset-password`.
+
+
+## Два адреса: заставка и тестовый сайт
+
+- **`kosmalis.com` и `www.kosmalis.com`**: заставка (жёлтый фон, чёрный английский текст «We are rebuilding»). Отдельный Worker `kosmalis-placeholder`, конфиг `wrangler.placeholder.jsonc`, страница `placeholder/index.html`. Кода в нём нет.
+- **`test.kosmalis.com`**: настоящий сайт (прототип, вход, регистрация, письма, администрирование). Worker `kosmalis-app`, конфиг `wrangler.jsonc`, `PUBLIC_URL=https://test.kosmalis.com`. Работает как боевой: регистрация с логином, паролем и подтверждением по почте. Закрыт от поисковиков. Ссылку давать только тестерам.
+- Одна база Neon на всё. Администраторы задаются секретом `ADMIN_USERNAMES`, тестеры регистрируются обычным образом. Перед запуском тестовых людей можно удалить: у администратора есть удаление аккаунта и массовая очистка (`POST /api/admin/purge-users`, см. `AUTH-RULES.md`).
+- Деплой (`.github/workflows/deploy.yml`) выкладывает оба Worker. Токену Cloudflare нужны права на зону `kosmalis.com` (Workers Scripts: Edit, Zone: DNS Edit, Workers Routes Edit). DNS-записи для `kosmalis.com`, `www` и `test` создаются самим деплоем, вручную их создавать не нужно.
+
+### Как переключить основной адрес на сайт (когда всё проверено)
+1. В Cloudflare → Workers → `kosmalis-placeholder` → Settings → Domains удалить `kosmalis.com` и `www.kosmalis.com` (или удалить сам Worker).
+2. В `wrangler.jsonc` заменить маршрут на `kosmalis.com` (и `www.kosmalis.com` при желании), `PUBLIC_URL` на `https://kosmalis.com`, закоммитить в `main`, деплой пройдёт сам.
+3. Обновить в Resend адрес отправителя при необходимости и проверить письма. Тестовый адрес `test.kosmalis.com` можно оставить или убрать.

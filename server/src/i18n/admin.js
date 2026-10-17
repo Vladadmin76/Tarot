@@ -10,8 +10,8 @@ export const ROLE_NAMES = {
   es: { admin: "Administrador", helper: "Ayudante", user: "Usuario" },
 };
 export const ACTION_LABELS = {
-  ru: { send_verify: "Отправил письмо подтверждения", send_reset: "Отправил письмо для сброса пароля", change_email: "Сменил почту аккаунта", block: "Заблокировал аккаунт", unblock: "Разблокировал аккаунт", set_role: "Изменил роль" },
-  en: { send_verify: "Sent a verification email", send_reset: "Sent a password reset email", change_email: "Changed the account email", block: "Blocked the account", unblock: "Unblocked the account", set_role: "Changed the role" },
-  es: { send_verify: "Envió un correo de verificación", send_reset: "Envió un correo para restablecer la contraseña", change_email: "Cambió el correo de la cuenta", block: "Bloqueó la cuenta", unblock: "Desbloqueó la cuenta", set_role: "Cambió el rol" },
+  ru: { send_verify: "Отправил письмо подтверждения", send_reset: "Отправил письмо для сброса пароля", change_email: "Сменил почту аккаунта", block: "Заблокировал аккаунт", unblock: "Разблокировал аккаунт", set_role: "Изменил роль", delete_user: "Удалил аккаунт", purge_users: "Массовое удаление пользователей" },
+  en: { send_verify: "Sent a verification email", send_reset: "Sent a password reset email", change_email: "Changed the account email", block: "Blocked the account", unblock: "Unblocked the account", set_role: "Changed the role", delete_user: "Deleted the account", purge_users: "Bulk-deleted users" },
+  es: { send_verify: "Envió un correo de verificación", send_reset: "Envió un correo para restablecer la contraseña", change_email: "Cambió el correo de la cuenta", block: "Bloqueó la cuenta", unblock: "Desbloqueó la cuenta", set_role: "Cambió el rol", delete_user: "Eliminó la cuenta", purge_users: "Eliminación masiva de usuarios" },
 };
 export const pick = (table, lang) => table[lang] || table.ru;

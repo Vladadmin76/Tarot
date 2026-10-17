@@ -1,0 +1,15 @@
+{
+  // Заставка на основном адресе kosmalis.com, пока настоящий сайт проверяется на test.kosmalis.com.
+  // Это отдельный Worker без кода: только одна статическая страница из папки placeholder.
+  "name": "kosmalis-placeholder",
+  "compatibility_date": "2026-09-01",
+
+  // custom_domain создаёт привязку и DNS-запись сам при деплое (вручную записи не создавать).
+  "routes": [
+    { "pattern": "kosmalis.com", "custom_domain": true },
+    { "pattern": "www.kosmalis.com", "custom_domain": true }
+  ],
+  "workers_dev": false,
+  "preview_urls": false,
+  "assets": { "directory": "./placeholder" }
+}
