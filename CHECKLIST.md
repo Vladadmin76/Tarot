@@ -102,7 +102,7 @@
 ### 3.2. Cloudflare, база, секреты (делаете вы) — ⏳
 - [x] Поддомен выбран: `tarot.fixtorllc.com`.
 - [x] Настройка Worker и привязки поддомена подготовлена (`wrangler.jsonc`), Worker и привязка создаются самим деплоем. Проверено локально.
-- [ ] ⏳ Токен Cloudflare и номер аккаунта положить в секреты GitHub (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`), запустить деплой. Шаги в `DEPLOY.md`.
+- [x] Токен Cloudflare и номер аккаунта в секретах GitHub (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`), деплой запущен 17.10.2026 и прошёл успешно: заставка на `kosmalis.com`, сайт на `test.kosmalis.com` (пока без базы и почты). Токен действует до 17.10.2027 (заменить заранее; в токен входят права на Workers, DNS, зоны и R2).
 - [x] Домен `kosmalis.com` куплен владельцем в Cloudflare Registrar 17.10.2026 (10,46 $/год, списано 12,76 $: смотреть счёт, возможно сбор и налог).
 - [ ] ⏳ Проверить в Cloudflare → Manage: автопродление и скрытие личных данных (WHOIS privacy) включены, двухфакторный вход в аккаунте.
 - [x] Сайт переключён на `kosmalis.com` в коде: `wrangler.jsonc` (маршрут и `PUBLIC_URL`), `EMAIL_FROM` по умолчанию `Kosmalis <noreply@kosmalis.com>`, адрес видео `live.kosmalis.com`, название «Kosmalis» в прототипе, адрес и название в юридических документах. Старый адрес `tarot.fixtorllc.com` не создаётся.
