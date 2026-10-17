@@ -29,3 +29,16 @@ export function checkTimezone(tz) {
   if (typeof tz !== "string" || tz.length > 64) return null;
   try { new Intl.DateTimeFormat("en", { timeZone: tz }); return tz; } catch { return null; }
 }
+
+// Дата рождения ГГГГ-ММ-ДД: настоящая дата, не раньше 1900 года, не в будущем, возраст не меньше 18 лет.
+export const MIN_AGE = 18;
+export function checkBirthDate(str, now = new Date()) {
+  if (typeof str !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(str)) return "birth_invalid";
+  const [y, m, d] = str.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== m - 1 || dt.getUTCDate() !== d) return "birth_invalid";
+  const today = now.toISOString().slice(0, 10);
+  if (y < 1900 || str > today) return "birth_invalid";
+  const cutoff = `${now.getUTCFullYear() - MIN_AGE}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")}`;
+  return str > cutoff ? "birth_underage" : null;
+}

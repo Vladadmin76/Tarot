@@ -13,7 +13,7 @@ export function shared({ config, db }) {
   const isAdminLogin = loginLower => config.admins.includes(loginLower);
   const roleOf = u => isAdminLogin(u.login_lower) ? "admin" : u.role;
   const levelOf = u => roleOf(u) === "helper" ? (u.helper_level || 1) : null;
-  const publicUser = u => ({ id: Number(u.id), login: u.login, name: u.name, email: u.email, lang: u.lang, role: roleOf(u), helperLevel: levelOf(u), emailVerified: !!u.email_verified_at, createdAt: u.created_at });
+  const publicUser = u => ({ id: Number(u.id), login: u.login, name: u.name, email: u.email, lang: u.lang, role: roleOf(u), helperLevel: levelOf(u), emailVerified: !!u.email_verified_at, birthDate: u.birth_date || null, createdAt: u.created_at });
 
   async function newToken(userId, kind, hours) {
     const t = randomToken();

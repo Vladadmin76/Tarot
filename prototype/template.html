@@ -263,6 +263,28 @@ table.matrix { border-collapse: collapse; width: 100%; min-width: 560px; font-si
   .hist-item { grid-template-columns: 1fr auto; } .hist-item .thumbs { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .card, .card .inner, .screen { animation: none; transition: none; } }
+
+/* ===== вход и регистрация ===== */
+body.booting .app { visibility: hidden; }
+#auth { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; padding: 16px; overflow-y: auto; background: radial-gradient(900px 500px at 50% -10%, var(--accent-soft), transparent 70%), linear-gradient(180deg, var(--bg-2), var(--bg) 60%); }
+#auth[hidden], #acctOverlay[hidden] { display: none; }
+.authbox { width: 100%; max-width: 410px; display: grid; gap: 14px; margin: auto; }
+.authbox .brand { justify-content: center; margin: 0; }
+.authbox form { display: grid; gap: 12px; }
+.authbox h1 { margin: 0; font-size: 28px; line-height: 1.15; }
+.authlang { display: flex; gap: 6px; justify-content: center; }
+.authlang button { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 999px; padding: 4px 12px; font-size: 13px; }
+.authlang button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+#auth input[type=text], #auth input[type=password], #auth input[type=email], #auth input[type=date], #acctBox input[type=password] { background: var(--bg-2); color: var(--fg); border: 1px solid var(--line); border-radius: 10px; padding: 11px 13px; font: inherit; width: 100%; box-sizing: border-box; }
+#auth input:focus-visible, #acctBox input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.field .ferr, .formerr { color: #ff9b9b; font-size: 13px; }
+.formerr { background: #3a1420; border: 1px solid #7a2a3d; border-radius: 10px; padding: 9px 12px; font-size: 14px; }
+.pwrow { display: flex; gap: 8px; align-items: center; }
+.pwrow button { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 10px; padding: 9px 11px; font-size: 13px; white-space: nowrap; }
+.authlinks { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 14px; }
+.authlinks button, .linkbtn { background: none; border: 0; color: var(--accent); padding: 4px 0; text-decoration: underline; font-size: inherit; }
+.authbox .check { min-width: 0; align-items: flex-start; font-size: 14px; color: var(--muted); }
+.authbox .check input { margin-top: 3px; accent-color: var(--accent); }
 </style>
 
 <div class="sky" aria-hidden="true"></div>
@@ -371,10 +393,12 @@ table.matrix { border-collapse: collapse; width: 100%; min-width: 560px; font-si
       <div class="testbox">
         <h3 style="font-size:22px">Тестовый режим</h3>
         <p class="lead" style="margin-bottom:6px">Для проверки внешнего вида. Роль показывает, что видят разные люди. Тариф показывает кабинет с ограничениями; галочками ниже отмечается, что входит в каждый тариф. Выбор запоминается в этом браузере.</p>
+        <div id="roleBox">
         <span class="muted">Роль</span><br>
         <div class="seg" id="roleSeg" role="group" aria-label="Роль для проверки">
           <button data-role="user" aria-pressed="false">Пользователь</button><button data-role="helper" aria-pressed="false">Помощник</button><button data-role="admin" aria-pressed="true">Администратор</button>
         </div><br>
+        </div>
         <span class="muted">Тариф</span><br>
       <div class="seg" id="planSeg" role="group" aria-label="Тариф для проверки"></div>
       <p class="hint" id="planNote" style="text-align:left; margin-bottom:10px"></p>
@@ -394,12 +418,13 @@ table.matrix { border-collapse: collapse; width: 100%; min-width: 560px; font-si
     <!-- Профиль -->
     <section class="screen" id="sc-set"><div class="pane">
       <h1 class="title">Профиль</h1>
-      <p class="lead">Макет настроек. Вход и пароль будут на этапе с базой данных.</p>
+      <p class="lead" id="setLead">Макет настроек. Вход и пароль будут на этапе с базой данных.</p>
       <div class="cols2" style="margin-top:12px">
         <div class="panel stack">
           <h3>Аккаунт</h3>
-          <div class="muted">Логин: <b style="color:var(--fg)">vladimir</b><br>Имя: <b style="color:var(--fg)">Владимир</b><br>Почта: <b style="color:var(--fg)">vladimir@example.com</b> <span class="saved">✓ подтверждена</span></div>
-          <p class="hint" style="text-align:left">Изменить имя и почту можно будет после подключения базы.</p>
+          <div class="muted" id="acctInfo">Логин: <b style="color:var(--fg)">vladimir</b><br>Имя: <b style="color:var(--fg)">Владимир</b><br>Почта: <b style="color:var(--fg)">vladimir@example.com</b> <span class="saved">✓ подтверждена</span></div>
+          <p class="hint" id="acctHint" style="text-align:left">Изменить имя и почту можно будет после подключения базы.</p>
+          <div id="acctBtns" class="stack" style="display:none"></div>
           <h3 style="margin-top:6px">Настройки</h3>
           <label class="field" for="lang">Язык<select id="lang"><option>Русский</option><option disabled>English (скоро)</option><option disabled>Español (скоро)</option></select></label>
           <label class="switch" for="useRev2"><input type="checkbox" id="useRev2" checked> Перевёрнутые карты</label>
@@ -417,6 +442,8 @@ table.matrix { border-collapse: collapse; width: 100%; min-width: 560px; font-si
   </div>
 </div>
 
+<div id="auth" hidden></div>
+<div class="overlay" id="acctOverlay" hidden><div class="panel" id="acctBox" role="dialog" aria-modal="true" style="max-width:420px; width:100%; margin:auto; display:grid; gap:12px"></div></div>
 <div class="overlay" id="overlay" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
 <div class="toast" id="toast" hidden></div>
 
@@ -981,15 +1008,15 @@ function openBot(editOnly) {
   });
   openOverlay();
 }
-$("#logout").addEventListener("click", () => toast("Выход из аккаунта подключим на этапе с базой"));
 
 /* ================= роли, промокоды, администрирование (макет) ================= */
+const AUTH = { real: false, user: null, fresh: true, reload: false };
 const ROLE = { v: store.get("tarot_role_v1", "admin") };
 const ROLE_NAMES = { user: "Пользователь", helper: "Помощник", admin: "Администратор" };
 const ME = "vladimir";
 function updateChip() { $("#planChip").textContent = PLAN_NAMES[TAR.current] + (ROLE.v !== "user" ? " · " + ROLE_NAMES[ROLE.v] : ""); }
 function applyRole() {
-  $("#menuAdmin").hidden = ROLE.v === "user";
+  $("#menuAdmin").hidden = AUTH.real || ROLE.v === "user";
   $$("#roleSeg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.role === ROLE.v));
   if (ROLE.v === "user" && S.screen === "admin") show("pick");
   updateChip();
@@ -1179,4 +1206,177 @@ function adminLog() {
 renderSpreadList(); updateSetup(); renderLib(); renderHistory(); renderPlans();
 updateChip();
 applyRole(); renderBonuses(); renderBot();
+
+/* ================= вход и регистрация (подключено к серверу /api/auth) ================= */
+// Работает только там, где есть сервер (test.kosmalis.com). Без сервера (файл, GitHub Pages) остаётся демо без входа.
+const AUTHL = {
+  ru: { signin: "Вход", id: "Логин или почта", pw: "Пароль", go: "Войти", mk: "Создать аккаунт", forgot: "Забыли пароль?", reg: "Регистрация", birth: "Дата рождения", birthHint: "Нужна для гороскопа. Сервис для лиц от 18 лет.", login: "Логин", loginHint: "3–32 символа: латинские буквы, цифры, _ . -", name: "Имя", email: "Почта", pwHint: "От 10 знаков", consent: "Я согласен с Условиями использования и Политикой конфиденциальности", mkgo: "Зарегистрироваться", have: "Уже есть аккаунт? Войти", checkT: "Проверьте почту", checkX: e => `Мы отправили письмо на ${e}. Нажмите кнопку в письме, чтобы подтвердить адрес (ссылка действует 24 часа). Если письма нет, проверьте папку «Спам».`, resend: "Отправить письмо ещё раз", resent: "Письмо отправлено", back: "← Ко входу", fT: "Восстановление пароля", fX: "Введите почту аккаунта. Мы отправим ссылку для нового пароля.", fGo: "Отправить ссылку", fDone: "Если такой адрес есть, мы отправили письмо со ссылкой (она действует 1 час). Проверьте и папку «Спам».", show: "Показать", hide: "Скрыть", fill: "Заполните все поля", net: "Не удалось связаться с сервером. Попробуйте ещё раз.", nv: "Почта ещё не подтверждена. Мы можем отправить письмо ещё раз.",
+    e: { birth_invalid: "Укажите дату рождения", birth_underage: "Сервис доступен с 18 лет", bad_credentials: "Неверный логин или пароль", rate_limited: "Слишком много попыток, попробуйте позже", account_blocked: "Аккаунт заблокирован. Напишите в поддержку.", login_taken: "Этот логин уже занят", email_taken: "Эта почта уже зарегистрирована. Войдите или восстановите пароль", login_invalid: "Логин: 3–32 символа, латинские буквы, цифры, _ . -", email_invalid: "Проверьте адрес почты", name_invalid: "Введите имя (до 60 знаков)", password_short: "Пароль короче 10 знаков", password_long: "Пароль длиннее 128 знаков", password_weak: "Слишком простой пароль", password_invalid: "Введите пароль", consent_required: "Нужно согласие с условиями", server_error: "Ошибка сервера, попробуйте позже", bad_origin: "Ошибка запроса, обновите страницу", invalid: "Проверьте введённые данные" },
+    acct: { birthL: "Дата рождения", login: "Логин", name: "Имя", email: "Почта", ok: "почта подтверждена", role: "Роль", roles: { user: "Пользователь", helper: "Помощник", admin: "Администратор" }, chpw: "Сменить пароль", cur: "Текущий пароль", npw: "Новый пароль", save: "Сохранить", changed: "Пароль изменён", del: "Удалить аккаунт", delX: "Аккаунт и все данные будут удалены без возможности восстановления. Введите пароль для подтверждения.", delGo: "Удалить навсегда", cancel: "Отмена", out: "Выйти из аккаунта", deleted: "Аккаунт удалён" } },
+  en: { signin: "Sign in", id: "Login or email", pw: "Password", go: "Sign in", mk: "Create an account", forgot: "Forgot password?", reg: "Sign up", birth: "Date of birth", birthHint: "Used for your horoscope. The service is for people 18 and over.", login: "Login", loginHint: "3–32 characters: Latin letters, digits, _ . -", name: "Name", email: "Email", pwHint: "At least 10 characters", consent: "I agree to the Terms of Service and the Privacy Policy", mkgo: "Create account", have: "Already have an account? Sign in", checkT: "Check your email", checkX: e => `We sent a message to ${e}. Press the button in the email to confirm your address (the link works for 24 hours). If it is not there, check your Spam folder.`, resend: "Send the email again", resent: "Email sent", back: "← Back to sign in", fT: "Reset password", fX: "Enter your account email. We will send a link to set a new password.", fGo: "Send link", fDone: "If this address exists, we sent an email with a link (valid for 1 hour). Check your Spam folder too.", show: "Show", hide: "Hide", fill: "Fill in all fields", net: "Could not reach the server. Please try again.", nv: "Your email is not confirmed yet. We can send the email again.",
+    e: { birth_invalid: "Enter your date of birth", birth_underage: "The service is available from age 18", bad_credentials: "Wrong login or password", rate_limited: "Too many attempts, please try again later", account_blocked: "Your account is blocked. Please contact support.", login_taken: "This login is already taken", email_taken: "This email is already registered. Sign in or reset your password", login_invalid: "Login: 3–32 characters, Latin letters, digits, _ . -", email_invalid: "Check the email address", name_invalid: "Enter your name (up to 60 characters)", password_short: "Password is shorter than 10 characters", password_long: "Password is longer than 128 characters", password_weak: "Password is too simple", password_invalid: "Enter a password", consent_required: "You need to accept the terms", server_error: "Server error, please try later", bad_origin: "Request error, please refresh the page", invalid: "Check the data you entered" },
+    acct: { birthL: "Date of birth", login: "Login", name: "Name", email: "Email", ok: "email confirmed", role: "Role", roles: { user: "User", helper: "Helper", admin: "Administrator" }, chpw: "Change password", cur: "Current password", npw: "New password", save: "Save", changed: "Password changed", del: "Delete account", delX: "Your account and all data will be deleted permanently. Enter your password to confirm.", delGo: "Delete forever", cancel: "Cancel", out: "Sign out", deleted: "Account deleted" } },
+  es: { signin: "Iniciar sesión", id: "Usuario o correo", pw: "Contraseña", go: "Entrar", mk: "Crear una cuenta", forgot: "¿Olvidaste tu contraseña?", reg: "Registro", birth: "Fecha de nacimiento", birthHint: "Se usa para tu horóscopo. El servicio es para mayores de 18 años.", login: "Usuario", loginHint: "3–32 caracteres: letras latinas, dígitos, _ . -", name: "Nombre", email: "Correo", pwHint: "Mínimo 10 caracteres", consent: "Acepto los Términos de uso y la Política de privacidad", mkgo: "Registrarme", have: "¿Ya tienes cuenta? Entra", checkT: "Revisa tu correo", checkX: e => `Enviamos un mensaje a ${e}. Pulsa el botón del correo para confirmar tu dirección (el enlace vale 24 horas). Si no llega, revisa la carpeta de Spam.`, resend: "Enviar el correo otra vez", resent: "Correo enviado", back: "← Volver", fT: "Restablecer contraseña", fX: "Escribe el correo de tu cuenta. Te enviaremos un enlace para crear una contraseña nueva.", fGo: "Enviar enlace", fDone: "Si la dirección existe, enviamos un correo con un enlace (válido 1 hora). Revisa también la carpeta de Spam.", show: "Mostrar", hide: "Ocultar", fill: "Rellena todos los campos", net: "No se pudo conectar con el servidor. Inténtalo de nuevo.", nv: "Tu correo aún no está confirmado. Podemos enviarlo otra vez.",
+    e: { birth_invalid: "Indica tu fecha de nacimiento", birth_underage: "El servicio es para mayores de 18 años", bad_credentials: "Usuario o contraseña incorrectos", rate_limited: "Demasiados intentos, inténtalo más tarde", account_blocked: "Tu cuenta está bloqueada. Escribe a soporte.", login_taken: "Este usuario ya está en uso", email_taken: "Este correo ya está registrado. Entra o restablece la contraseña", login_invalid: "Usuario: 3–32 caracteres, letras latinas, dígitos, _ . -", email_invalid: "Revisa la dirección de correo", name_invalid: "Escribe tu nombre (hasta 60 caracteres)", password_short: "La contraseña tiene menos de 10 caracteres", password_long: "La contraseña tiene más de 128 caracteres", password_weak: "La contraseña es demasiado simple", password_invalid: "Escribe una contraseña", consent_required: "Debes aceptar los términos", server_error: "Error del servidor, inténtalo más tarde", bad_origin: "Error de solicitud, actualiza la página", invalid: "Revisa los datos introducidos" },
+    acct: { birthL: "Fecha de nacimiento", login: "Usuario", name: "Nombre", email: "Correo", ok: "correo confirmado", role: "Rol", roles: { user: "Usuario", helper: "Ayudante", admin: "Administrador" }, chpw: "Cambiar contraseña", cur: "Contraseña actual", npw: "Contraseña nueva", save: "Guardar", changed: "Contraseña cambiada", del: "Eliminar cuenta", delX: "Tu cuenta y todos los datos se eliminarán para siempre. Escribe tu contraseña para confirmar.", delGo: "Eliminar para siempre", cancel: "Cancelar", out: "Cerrar sesión", deleted: "Cuenta eliminada" } }
+};
+const UIL = { v: (() => { const s = store.get("tarot_ui_lang", ""); if (AUTHL[s]) return s; const n = (navigator.language || "ru").slice(0, 2).toLowerCase(); return AUTHL[n] ? n : "en"; })() };
+const AT = () => AUTHL[UIL.v];
+const tz = () => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch { return undefined; } };
+async function api(path, method = "GET", body) {
+  try {
+    const r = await fetch(path, { method, credentials: "same-origin", headers: body ? { "Content-Type": "application/json" } : {}, body: body ? JSON.stringify(body) : undefined });
+    const j = await r.json().catch(() => null);
+    return { status: r.status, json: j };
+  } catch { return { status: 0, json: null }; }
+}
+const errText = (j, st) => { const e = AT().e; if (!st) return AT().net; return e[j && j.error] || e.server_error; };
+
+function authShell(inner) {
+  const a = $("#auth"); a.hidden = false; $(".app").inert = true;
+  a.innerHTML = `<div class="authbox"><div class="brand">Kosmalis <small>Космический мистицизм</small></div>
+    <div class="authlang" role="group" aria-label="Language">${Object.keys(AUTHL).map(l => `<button data-ul="${l}" aria-pressed="${l === UIL.v}">${l.toUpperCase()}</button>`).join("")}</div>
+    <div class="panel">${inner}</div></div>`;
+  $$("[data-ul]", a).forEach(b => b.addEventListener("click", () => { UIL.v = b.dataset.ul; store.set("tarot_ui_lang", UIL.v); authView(AUTHV.name, AUTHV.data); }));
+}
+const AUTHV = { name: "login", data: null };
+function pwField(id, label, hint, ac) {
+  const T = AT();
+  return `<label class="field" for="${id}">${label}<span class="pwrow"><input type="password" id="${id}" autocomplete="${ac}" maxlength="128" autocapitalize="none" spellcheck="false"><button type="button" data-pwt="${id}">${T.show}</button></span>${hint ? `<span class="hint" style="text-align:left">${hint}</span>` : ""}<span class="ferr" data-fe="${id}"></span></label>`;
+}
+function bindPw(root) {
+  const T = AT();
+  $$("[data-pwt]", root).forEach(b => b.addEventListener("click", () => { const i = $("#" + b.dataset.pwt, root); const show = i.type === "password"; i.type = show ? "text" : "password"; b.textContent = show ? T.hide : T.show; }));
+}
+function fieldErrors(root, map) { $$(".ferr", root).forEach(e => e.textContent = ""); for (const [k, code] of Object.entries(map || {})) { const el = $(`[data-fe="${k}"]`, root); if (el) el.textContent = AT().e[code] || AT().e.invalid; } }
+function setBusy(form, busy) { $$("button, input", form).forEach(x => x.disabled = busy); }
+
+function authView(name, data) {
+  AUTHV.name = name; AUTHV.data = data; const T = AT();
+  if (name === "login") {
+    authShell(`<form id="fLogin" novalidate><h1>${T.signin}</h1><div class="formerr" id="fe" hidden></div>
+      ${data && data.notVerified ? `<p class="hint" style="text-align:left">${T.nv} <button type="button" class="linkbtn" id="rs">${T.resend}</button></p>` : ""}
+      <label class="field" for="lid">${T.id}<input type="text" id="lid" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="254" value="${esc((data && data.id) || "")}"></label>
+      ${pwField("lpw", T.pw, "", "current-password")}
+      <button class="btn" type="submit">${T.go}</button>
+      <div class="authlinks"><button type="button" id="toReg">${T.mk}</button><button type="button" id="toForgot">${T.forgot}</button></div></form>`);
+    const f = $("#fLogin"); bindPw(f);
+    $("#toReg").onclick = () => authView("register"); $("#toForgot").onclick = () => authView("forgot");
+    const rs = $("#rs"); if (rs) rs.onclick = async () => { await api("/api/auth/resend", "POST", { email: data.id }); toast(T.resent); };
+    f.addEventListener("submit", async e => {
+      e.preventDefault(); const id = $("#lid").value.trim(), pw = $("#lpw").value, fe = $("#fe");
+      if (!id || !pw) { fe.textContent = T.fill; fe.hidden = false; return; }
+      setBusy(f, true); const r = await api("/api/auth/login", "POST", { login: id, password: pw, timezone: tz() }); setBusy(f, false);
+      if (r.status === 200 && r.json && r.json.user) return enterApp(r.json.user);
+      if (r.json && r.json.error === "email_not_verified") return authView("login", { id, notVerified: true });
+      fe.textContent = errText(r.json, r.status); fe.hidden = false;
+    });
+  } else if (name === "register") {
+    authShell(`<form id="fReg" novalidate><h1>${T.reg}</h1><div class="formerr" id="fe" hidden></div>
+      <label class="field" for="rl">${T.login}<input type="text" id="rl" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="32"><span class="hint" style="text-align:left">${T.loginHint}</span><span class="ferr" data-fe="login"></span></label>
+      <label class="field" for="rn">${T.name}<input type="text" id="rn" autocomplete="name" maxlength="60"><span class="ferr" data-fe="name"></span></label>
+      <label class="field" for="rb">${T.birth}<input type="date" id="rb" autocomplete="bday" min="1900-01-01" max="${new Date().toISOString().slice(0, 10)}"><span class="hint" style="text-align:left">${T.birthHint}</span><span class="ferr" data-fe="birthDate"></span></label>
+      <label class="field" for="re">${T.email}<input type="email" id="re" autocomplete="email" autocapitalize="none" spellcheck="false" maxlength="254"><span class="ferr" data-fe="email"></span></label>
+      ${pwField("rp", T.pw, T.pwHint, "new-password").replace('data-fe="rp"', 'data-fe="password"')}
+      <label class="check"><input type="checkbox" id="rc"><span>${T.consent}</span></label><span class="ferr" data-fe="consent"></span>
+      <button class="btn" type="submit">${T.mkgo}</button>
+      <div class="authlinks"><button type="button" id="toLogin">${T.have}</button></div></form>`);
+    const f = $("#fReg"); bindPw(f); $("#toLogin").onclick = () => authView("login");
+    f.addEventListener("submit", async e => {
+      e.preventDefault(); const fe = $("#fe"); fe.hidden = true;
+      const b = { login: $("#rl").value.trim(), name: $("#rn").value.trim(), email: $("#re").value.trim(), password: $("#rp").value, birthDate: $("#rb").value, consent: $("#rc").checked, lang: UIL.v, timezone: tz() };
+      setBusy(f, true); const r = await api("/api/auth/register", "POST", b); setBusy(f, false);
+      if (r.status === 200) return authView("check", { email: b.email });
+      if (r.status === 400 && r.json && r.json.fields) return fieldErrors(f, r.json.fields);
+      if (r.json && (r.json.error === "login_taken")) return fieldErrors(f, { login: "login_taken" });
+      if (r.json && (r.json.error === "email_taken")) return fieldErrors(f, { email: "email_taken" });
+      fe.textContent = errText(r.json, r.status); fe.hidden = false;
+    });
+  } else if (name === "check") {
+    authShell(`<div style="display:grid;gap:12px"><h1>${T.checkT}</h1><p class="lead">${esc(T.checkX(data.email))}</p>
+      <button class="btn ghost" id="rs">${T.resend}</button><div class="authlinks"><button type="button" id="toLogin">${T.back}</button></div></div>`);
+    $("#toLogin").onclick = () => authView("login", { id: data.email });
+    $("#rs").onclick = async () => { await api("/api/auth/resend", "POST", { email: data.email }); toast(T.resent); };
+  } else if (name === "forgot") {
+    authShell(`<form id="fF" novalidate><h1>${T.fT}</h1><p class="lead">${T.fX}</p><div class="formerr" id="fe" hidden></div><p class="hint" id="fd" style="text-align:left" hidden>${T.fDone}</p>
+      <label class="field" for="fm">${T.email}<input type="email" id="fm" autocomplete="email" autocapitalize="none" spellcheck="false" maxlength="254"></label>
+      <button class="btn" type="submit">${T.fGo}</button><div class="authlinks"><button type="button" id="toLogin">${T.back}</button></div></form>`);
+    const f = $("#fF"); $("#toLogin").onclick = () => authView("login");
+    f.addEventListener("submit", async e => {
+      e.preventDefault(); const fe = $("#fe"), m = $("#fm").value.trim(); fe.hidden = true;
+      if (!m) { fe.textContent = T.fill; fe.hidden = false; return; }
+      setBusy(f, true); const r = await api("/api/auth/forgot", "POST", { email: m }); setBusy(f, false);
+      if (r.status === 200) { $("#fd").hidden = false; return; }
+      fe.textContent = errText(r.json, r.status); fe.hidden = false;
+    });
+  }
+  const first = $("#auth input:not([type=checkbox])"); if (first && matchMedia("(hover: hover)").matches) first.focus();
+}
+
+/* вошедший пользователь */
+function acctRender() {
+  const u = AUTH.user, T = AT().acct; if (!u) return;
+  $(".ava").textContent = (u.name || u.login || "?").trim().charAt(0).toUpperCase();
+  $(".uname").textContent = u.name;
+  $("#acctInfo").innerHTML = `${T.login}: <b style="color:var(--fg)">${esc(u.login)}</b><br>${T.name}: <b style="color:var(--fg)">${esc(u.name)}</b><br>${T.email}: <b style="color:var(--fg)">${esc(u.email)}</b> <span class="saved">✓ ${T.ok}</span><br>${u.birthDate ? `${T.birthL}: <b style="color:var(--fg)">${esc(u.birthDate)}</b><br>` : ""}${T.role}: <b style="color:var(--fg)">${T.roles[u.role]}${u.helperLevel ? " · " + u.helperLevel : ""}</b>`;
+  $("#acctHint").hidden = true; $("#setLead").hidden = true;
+  const b = $("#acctBtns"); b.style.display = "grid"; b.style.justifyItems = "start";
+  b.innerHTML = `<button class="btn ghost small" id="acPw">${T.chpw}</button><button class="btn ghost small" id="acDel">${T.del}</button>`;
+  $("#acPw").onclick = acctPwDialog; $("#acDel").onclick = acctDelDialog;
+  $("#logout").textContent = T.out;
+  updateChip();
+}
+function acctDialog(html) { const o = $("#acctOverlay"); $("#acctBox").innerHTML = html; o.hidden = false; return o; }
+function acctClose() { $("#acctOverlay").hidden = true; }
+$("#acctOverlay").addEventListener("click", e => { if (e.target.id === "acctOverlay") acctClose(); });
+function acctPwDialog() {
+  const T = AT(), A = T.acct;
+  const o = acctDialog(`<h3 style="margin:0">${A.chpw}</h3><div class="formerr" id="ae" hidden></div>
+    <form id="fPw" novalidate style="display:grid;gap:12px">${pwField("cp", A.cur, "", "current-password")}${pwField("np", A.npw, T.pwHint, "new-password")}
+    <div style="display:flex;gap:8px"><button class="btn" type="submit">${A.save}</button><button class="btn ghost" type="button" id="ac">${A.cancel}</button></div></form>`);
+  const f = $("#fPw"); bindPw(f); $("#ac").onclick = acctClose;
+  f.addEventListener("submit", async e => {
+    e.preventDefault(); const ae = $("#ae"); ae.hidden = true;
+    setBusy(f, true); const r = await api("/api/auth/change-password", "POST", { current: $("#cp").value, password: $("#np").value }); setBusy(f, false);
+    if (r.status === 200) { acctClose(); return toast(A.changed); }
+    if (r.json && /^password_/.test(r.json.error)) return fieldErrors(f, { np: r.json.error });
+    ae.textContent = errText(r.json, r.status); ae.hidden = false;
+  });
+}
+function acctDelDialog() {
+  const T = AT(), A = T.acct;
+  acctDialog(`<h3 style="margin:0">${A.del}</h3><p class="lead" style="margin:0">${A.delX}</p><div class="formerr" id="ae" hidden></div>
+    <form id="fDel" novalidate style="display:grid;gap:12px">${pwField("dp", T.pw, "", "current-password")}
+    <div style="display:flex;gap:8px"><button class="btn" type="submit">${A.delGo}</button><button class="btn ghost" type="button" id="ac">${A.cancel}</button></div></form>`);
+  const f = $("#fDel"); bindPw(f); $("#ac").onclick = acctClose;
+  f.addEventListener("submit", async e => {
+    e.preventDefault(); const ae = $("#ae"); ae.hidden = true;
+    setBusy(f, true); const r = await api("/api/auth/delete", "POST", { password: $("#dp").value }); setBusy(f, false);
+    if (r.status === 200) { acctClose(); wipeLocal(); AUTH.user = null; toast(A.deleted); return authView("login"); }
+    ae.textContent = errText(r.json, r.status); ae.hidden = false;
+  });
+}
+// Расклады и настройки пока лежат в браузере: у другого человека на том же устройстве они не должны появиться.
+function wipeLocal() { try { Object.keys(localStorage).filter(k => k.startsWith("tarot_") && !["tarot_ui_lang", "tarot_accent"].includes(k)).forEach(k => localStorage.removeItem(k)); } catch { /* без хранилища */ } }
+function enterApp(user) {
+  let owner = null; try { owner = localStorage.getItem("tarot_owner"); } catch { /* */ }
+  if (owner !== String(user.id)) { wipeLocal(); try { localStorage.setItem("tarot_owner", String(user.id)); } catch { /* */ } if (owner !== null || AUTH.fresh) { AUTH.reload = true; location.reload(); return; } }
+  AUTH.real = true; AUTH.user = user; ROLE.v = user.role;
+  $("#auth").hidden = true; $("#auth").innerHTML = ""; $(".app").inert = false; document.body.classList.remove("booting");
+  $("#roleBox").hidden = true; $("#menuAdmin").hidden = true;
+  acctRender(); applyRole(); show("pick");
+}
+$("#logout").addEventListener("click", async () => {
+  if (!AUTH.real) return;
+  await api("/api/auth/logout", "POST", {}); AUTH.real = false; AUTH.user = null; location.reload();
+});
+async function bootAuth() {
+  if (location.protocol === "file:") return document.body.classList.remove("booting");
+  document.body.classList.add("booting");
+  const me = await api("/api/auth/me");
+  if (me.status === 200 && me.json && me.json.user) { AUTH.fresh = false; return enterApp(me.json.user); }
+  if (me.status === 401 && me.json && me.json.error === "not_logged_in") { document.body.classList.remove("booting"); return authView("login"); }
+  document.body.classList.remove("booting"); // сервера нет: демо без входа
+}
+bootAuth();
 </script>

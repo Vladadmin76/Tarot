@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { getCookie, deleteCookie } from "hono/cookie";
 import { sha256Hex, hashPassword, verifyPassword, dummyVerify } from "../crypto.js";
 import { shared } from "../shared.js";
-import { checkLogin, checkEmail, checkName, checkPassword, checkTimezone, normLogin, normEmail, LANGS } from "../validate.js";
+import { checkLogin, checkEmail, checkName, checkPassword, checkTimezone, checkBirthDate, normLogin, normEmail, LANGS } from "../validate.js";
 import { tooMany, hit, cleanup } from "../ratelimit.js";
 import { sendTemplate } from "../email/index.js";
 
@@ -31,6 +31,7 @@ export function authRoutes({ config, db, email }) {
     if (!checkEmail(mail)) fields.email = "email_invalid";
     if (!checkName(name)) fields.name = "name_invalid";
     const pe = checkPassword(b.password, { login, email: mail }); if (pe) fields.password = pe;
+    const be = checkBirthDate(b.birthDate); if (be) fields.birthDate = be;
     if (b.consent !== true) fields.consent = "consent_required";
     if (Object.keys(fields).length) return err(c, 400, "invalid", { fields });
     const lang = LANGS.includes(b.lang) ? b.lang : "ru";
@@ -41,8 +42,8 @@ export function authRoutes({ config, db, email }) {
     const hash = await hashPassword(b.password, config.pbkdf2Iterations);
     let u;
     try {
-      u = (await db.query("INSERT INTO users (login, login_lower, email, email_lower, name, password_hash, lang, timezone, consent_at, consent_version) VALUES ($1,$2,$3,$4,$5,$6,$7,$8, now(), $9) RETURNING *",
-        [login, login.toLowerCase(), mail, mail.toLowerCase(), name, hash, lang, checkTimezone(b.timezone), config.consentVersion]))[0];
+      u = (await db.query("INSERT INTO users (login, login_lower, email, email_lower, name, password_hash, lang, timezone, consent_at, consent_version, birth_date) VALUES ($1,$2,$3,$4,$5,$6,$7,$8, now(), $9, $10) RETURNING *",
+        [login, login.toLowerCase(), mail, mail.toLowerCase(), name, hash, lang, checkTimezone(b.timezone), config.consentVersion, b.birthDate]))[0];
     } catch (e) { // гонка двух одинаковых регистраций
       if (/unique|duplicate/i.test(e.message)) return err(c, 409, /email/i.test(e.message) ? "email_taken" : "login_taken");
       throw e;

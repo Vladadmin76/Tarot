@@ -80,7 +80,7 @@ export function adminRoutes({ config, db, email }) {
     const bad = need(c, "view"); if (bad) return bad;
     const t = await target(c); if (!t) return err(c, 404, "not_found");
     const x = c.get("actor");
-    return c.json({ user: { ...row(t, x.lang), lang: t.lang, timezone: t.timezone, lastLoginAt: t.last_login_at, consentAt: t.consent_at,
+    return c.json({ user: { ...row(t, x.lang), lang: t.lang, timezone: t.timezone, birthDate: x.role === "admin" ? t.birth_date || null : undefined, lastLoginAt: t.last_login_at, consentAt: t.consent_at,
       // блок подписки появится вместе с тарифами; суммы платежей позже будут только с права see_payments
       subscription: { available: false } } });
   });

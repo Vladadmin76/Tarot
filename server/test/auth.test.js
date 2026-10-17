@@ -25,7 +25,7 @@ async function setup(extra = {}) {
   const tokenFrom = (m) => new URL(m.text.match(/https?:\/\/\S+/)[0]).searchParams.get("token");
   return { call, db, email, config, tokenFrom, clearCookie: () => { cookie = ""; } };
 }
-const reg = { login: "Alice", password: "correct horse battery", name: "Алиса", email: "alice@example.com", consent: true, lang: "ru" };
+const reg = { login: "Alice", password: "correct horse battery", name: "Алиса", email: "alice@example.com", consent: true, lang: "ru", birthDate: "1990-05-15" };
 
 test("регистрация → подтверждение → вход → me → выход", async () => {
   const s = await setup();
@@ -63,7 +63,7 @@ test("проверка полей и согласия", async () => {
   const s = await setup();
   const r = await s.call("POST", "/api/auth/register", { login: "a", password: "short", name: "", email: "bad", consent: false });
   assert.equal(r.status, 400);
-  assert.deepEqual(Object.keys(r.json.fields).sort(), ["consent", "email", "login", "name", "password"]);
+  assert.deepEqual(Object.keys(r.json.fields).sort(), ["birthDate", "consent", "email", "login", "name", "password"]);
   const w = await s.call("POST", "/api/auth/register", { ...reg, password: "aaaaaaaaaaaa" });
   assert.equal(w.json.fields.password, "password_weak");
   assert.equal((await s.db.query("SELECT count(*)::int n FROM users"))[0].n, 0);
@@ -176,4 +176,18 @@ test("страницы для ссылок из писем и заголовок
     assert.equal(r.status, 200); assert.match(await r.text(), /<button id="go"/);
     assert.equal(r.headers.get("cache-control"), "no-store");
   }
+});
+
+test("дата рождения: обязательна, настоящая, не в будущем, возраст от 18", async () => {
+  const s = await setup();
+  const y = new Date().getUTCFullYear();
+  for (const [v, code] of [[undefined, "birth_invalid"], ["1990-02-30", "birth_invalid"], ["15.05.1990", "birth_invalid"], ["1899-12-31", "birth_invalid"], [`${y + 1}-01-01`, "birth_invalid"], [`${y - 10}-01-01`, "birth_underage"]]) {
+    const r = await s.call("POST", "/api/auth/register", { ...reg, birthDate: v });
+    assert.equal(r.status, 400, String(v)); assert.equal(r.json.fields.birthDate, code, String(v));
+  }
+  assert.equal((await s.call("POST", "/api/auth/register", { ...reg, birthDate: "2008-01-01".replace("2008", String(y - 20)) })).status, 200);
+  assert.equal((await s.db.query("SELECT birth_date FROM users"))[0].birth_date, `${y - 20}-01-01`);
+  await s.call("POST", "/api/auth/verify", { token: s.tokenFrom(s.email.outbox.at(-1)) });
+  const l = await s.call("POST", "/api/auth/login", { login: "alice", password: reg.password });
+  assert.equal(l.json.user.birthDate, `${y - 20}-01-01`);
 });

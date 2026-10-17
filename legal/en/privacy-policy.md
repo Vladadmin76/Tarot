@@ -9,7 +9,7 @@ This Privacy Policy explains how [COMPANY LEGAL NAME] ("we", "us") collects, use
 ## 1. Information we collect
 
 **You give us**
-- Account data: username, password (stored only as a one-way hash, so nobody, including us, can read it), name, email address, language, and preferences.
+- Account data: username, password (stored only as a one-way hash, so nobody, including us, can read it), name, email address, date of birth (to compute your horoscope sign and to confirm you are at least 18), language, and preferences.
 - Your use of the Service: the readings you draw (cards, positions, dates), the questions you type, favorites, and settings such as when you want a daily message from our bot.
 - Subscription and promo data: your plan, promo codes you redeem, and the bonuses they give.
 - Messages to support.
