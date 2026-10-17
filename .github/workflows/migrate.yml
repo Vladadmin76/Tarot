@@ -1,0 +1,22 @@
+name: Apply database migrations
+
+# Применяет файлы server/migrations к базе Neon (секрет DATABASE_URL). Запускается вручную: Actions → Apply database migrations → Run workflow.
+on:
+  workflow_dispatch:
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm ci
+        working-directory: server
+      - name: Apply migrations
+        run: node scripts/migrate.js
+        working-directory: server
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}

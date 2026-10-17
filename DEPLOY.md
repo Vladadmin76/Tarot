@@ -63,3 +63,11 @@ npx wrangler@4 dev              # открывает сайт на http://localh
 1. В Cloudflare → Workers → `kosmalis-placeholder` → Settings → Domains удалить `kosmalis.com` и `www.kosmalis.com` (или удалить сам Worker).
 2. В `wrangler.jsonc` заменить маршрут на `kosmalis.com` (и `www.kosmalis.com` при желании), `PUBLIC_URL` на `https://kosmalis.com`, закоммитить в `main`, деплой пройдёт сам.
 3. Обновить в Resend адрес отправителя при необходимости и проверить письма. Тестовый адрес `test.kosmalis.com` можно оставить или убрать.
+
+
+## Всё с телефона: секреты и миграции через GitHub
+
+Ничего устанавливать на компьютер не нужно.
+1. **Секреты** добавляются в GitHub (Settings → Secrets and variables → Actions): `DATABASE_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `ADMIN_USERNAMES`. Каждый деплой сам передаёт их в Worker `kosmalis-app` (пустые пропускаются).
+2. **Миграции базы**: Actions → «Apply database migrations» → Run workflow. Он применяет все файлы из `server/migrations` к базе по `DATABASE_URL` (повторный запуск безопасен: уже применённые пропускаются).
+3. После добавления или изменения секрета запустите деплой заново (Actions → «Deploy to Cloudflare» → Run workflow).

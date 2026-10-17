@@ -13,6 +13,7 @@ on:
       - "placeholder/**"
       - "server/src/**"
       - "server/package*.json"
+      - "tools/sync_secrets.js"
       - "tools/build_site.sh"
       - ".github/workflows/deploy.yml"
   workflow_dispatch:
@@ -45,3 +46,17 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Sync Worker secrets (test.kosmalis.com)
+        run: |
+          node tools/sync_secrets.js > "$RUNNER_TEMP/secrets.json"
+          if [ "$(cat "$RUNNER_TEMP/secrets.json")" != "{}" ]; then
+            npx --yes wrangler@4 secret bulk "$RUNNER_TEMP/secrets.json" --name kosmalis-app
+          fi
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          ADMIN_USERNAMES: ${{ secrets.ADMIN_USERNAMES }}

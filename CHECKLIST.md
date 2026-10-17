@@ -111,6 +111,7 @@
 - [ ] ⏳ Почта сайта `support@kosmalis.com` (получать письма поддержки и юридические): Cloudflare Email Routing (бесплатно, пересылка на личный Gmail), ответы от имени адреса через Gmail «Отправлять как» и SMTP Resend, не через SMTP Gmail (иначе в заголовках виден личный адрес). Также `noreply@kosmalis.com` только для отправки сайтом. После создания подставить в `[SUPPORT EMAIL]` в `legal/`. Вопрос 25.
 - [ ] ⏳ Домены в Cloudflare и Resend под новый адрес: токен деплоя для зоны `kosmalis.com`, домен `kosmalis.com` в Resend, `live.kosmalis.com` для R2 (`DEPLOY.md`).
 - [ ] ⏳ Создать хранилище R2 (под картинки колоды и живые карты): корзина `tarot-live`, домен `live.fixtorllc.com`, загрузка `tools/upload_live.sh` (`DEPLOY.md`).
+- [x] Автоматика для телефона: деплой сам передаёт секреты из GitHub в Worker, миграции запускаются кнопкой в Actions (`migrate.yml`, `tools/sync_secrets.js`).
 - [ ] ⏳ Создать новый проект Neon (отдельный от Help). Адрес подключения положить секретом, не присылать в чат. Затем применить миграцию `cd server && npm ci && DATABASE_URL=... npm run migrate` (`DEPLOY.md`).
 - [ ] ⏳ Resend: аккаунт, домен `fixtorllc.com` (DNS в Cloudflare), API-ключ; секреты Worker `DATABASE_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `ADMIN_USERNAMES` (`DEPLOY.md`).
 - [ ] ⏳ Создать токен доступа Cloudflare и положить в секреты репозитория GitHub.
